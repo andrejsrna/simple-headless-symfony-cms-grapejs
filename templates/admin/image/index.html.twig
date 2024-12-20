@@ -3,64 +3,86 @@
 {% block title %}Image Gallery{% endblock %}
 
 {% block admin_content %}
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h2 mb-0">Image Gallery</h1>
-    </div>
-
-    {% for message in app.flashes('success') %}
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="space-y-6">
+        <!-- Header -->
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-semibold tracking-tight">Image Gallery</h1>
+                <p class="text-sm text-muted-foreground">Manage your uploaded images.</p>
+            </div>
         </div>
-    {% endfor %}
 
-    <div class="row g-4">
-        {% for image in images %}
-            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                <div class="card h-100">
-                    <img src="{{ image.path }}" 
-                         class="card-img-top"
-                         alt="{{ image.name }}"
-                         style="height: 200px; object-fit: cover;">
-                    <div class="card-body">
-                        <h6 class="card-title text-truncate" title="{{ image.name }}">{{ image.name }}</h6>
-                        <p class="card-text small text-muted mb-0">
-                            <i class="fas fa-hdd me-1"></i> {{ image.size }}
-                        </p>
-                        <p class="card-text small text-muted">
-                            <i class="fas fa-clock me-1"></i> {{ image.modified|date('M d, Y H:i') }}
-                        </p>
+        {% for message in app.flashes('success') %}
+            <div class="rounded-lg bg-green-50 p-4 text-sm text-green-500 flex justify-between items-center" role="alert">
+                <span>{{ message }}</span>
+                <button type="button" class="text-green-500 hover:text-green-600" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        {% endfor %}
+
+        <!-- Image Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {% for image in images %}
+                <div class="group relative bg-white dark:bg-gray-800 rounded-lg border shadow-sm overflow-hidden">
+                    <!-- Image Preview -->
+                    <div class="aspect-square w-full overflow-hidden bg-gray-100 dark:bg-gray-900">
+                        <img src="{{ image.path }}" 
+                             alt="{{ image.name }}"
+                             class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105">
                     </div>
-                    <div class="card-footer bg-transparent">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <a href="{{ image.path }}" 
-                               class="btn btn-sm btn-outline-primary"
-                               target="_blank">
-                                <i class="fas fa-external-link-alt me-1"></i>
-                                View
-                            </a>
-                            <form action="{{ path('admin_images_delete', {'filename': image.name}) }}" 
-                                  method="post" 
-                                  class="d-inline" 
-                                  onsubmit="return confirm('Are you sure you want to delete this image?');">
-                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ image.name) }}">
-                                <button type="submit" class="btn btn-sm btn-outline-danger">
-                                    <i class="fas fa-trash me-1"></i>
-                                    Delete
-                                </button>
-                            </form>
+
+                    <!-- Image Info -->
+                    <div class="p-4">
+                        <h3 class="font-medium text-sm truncate" title="{{ image.name }}">
+                            {{ image.name }}
+                        </h3>
+                        <div class="mt-1 space-y-1">
+                            <p class="text-xs text-muted-foreground flex items-center gap-1">
+                                <i class="fas fa-hdd"></i>
+                                <span>{{ image.size }}</span>
+                            </p>
+                            <p class="text-xs text-muted-foreground flex items-center gap-1">
+                                <i class="fas fa-clock"></i>
+                                <span>{{ image.modified|date('M d, Y H:i') }}</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="p-4 pt-0 flex items-center justify-between gap-2">
+                        <a href="{{ image.path }}" 
+                           target="_blank"
+                           class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3">
+                            <i class="fas fa-external-link-alt mr-2"></i>
+                            View
+                        </a>
+                        <form action="{{ path('admin_images_delete', {'filename': image.name}) }}" 
+                              method="post" 
+                              class="inline-flex" 
+                              onsubmit="return confirm('Are you sure you want to delete this image?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ image.name) }}">
+                            <button type="submit" 
+                                    class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-destructive text-destructive-foreground hover:bg-destructive/90 h-9 px-3">
+                                <i class="fas fa-trash mr-2"></i>
+                                Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-span-full">
+                    <div class="rounded-lg border border-dashed p-12 text-center">
+                        <div class="mx-auto flex max-w-[420px] flex-col items-center justify-center">
+                            <i class="fas fa-images fa-3x text-muted-foreground mb-4"></i>
+                            <h3 class="text-lg font-semibold">No images found</h3>
+                            <p class="text-sm text-muted-foreground mt-2">
+                                Images uploaded through the article editor will appear here.
+                            </p>
                         </div>
                     </div>
                 </div>
-            </div>
-        {% else %}
-            <div class="col-12">
-                <div class="text-center py-5 text-muted">
-                    <i class="fas fa-images fa-3x mb-3"></i>
-                    <p class="h5">No images found</p>
-                    <p class="small">Images uploaded through the article editor will appear here.</p>
-                </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
     </div>
 {% endblock %} 

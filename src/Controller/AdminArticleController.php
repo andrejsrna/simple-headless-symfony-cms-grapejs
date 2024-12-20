@@ -32,15 +32,15 @@ class AdminArticleController extends AbstractController
         $form = $this->createForm(ArticleType::class, $article);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted()) {
-            if ($form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
                 $em->persist($article);
                 $em->flush();
 
                 $this->addFlash('success', 'Article created successfully.');
                 return $this->redirectToRoute('admin_articles_index');
-            } else {
-                $this->addFlash('error', 'There were errors in your submission.');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error creating article: ' . $e->getMessage());
             }
         }
 
@@ -64,10 +64,13 @@ class AdminArticleController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em->flush();
-
-            $this->addFlash('success', 'Article updated successfully.');
-            return $this->redirectToRoute('admin_articles_index');
+            try {
+                $em->flush();
+                $this->addFlash('success', 'Article updated successfully.');
+                return $this->redirectToRoute('admin_articles_index');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error updating article: ' . $e->getMessage());
+            }
         }
 
         return $this->render('admin/article/edit.html.twig', [

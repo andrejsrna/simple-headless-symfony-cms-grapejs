@@ -9,6 +9,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Image;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class ArticleType extends AbstractType
 {
@@ -35,6 +36,12 @@ class ArticleType extends AbstractType
                 'attr' => [
                     'data-controller' => 'suneditor',
                     'rows' => 10,
+                ],
+                'required' => false,
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'The content cannot be empty',
+                    ]),
                 ],
             ])
         ;

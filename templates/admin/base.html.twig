@@ -1,123 +1,87 @@
 {% extends 'base.html.twig' %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+{% endblock %}
+
 {% block body %}
-    <div class="d-flex">
-        <!-- Sidebar -->
-        <div class="sidebar bg-dark text-white" style="min-width: 250px; min-height: 100vh;" id="sidebar">
-            <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
-                <h5 class="m-0">Admin Panel</h5>
-                <button class="btn btn-link text-white d-lg-none p-0" onclick="toggleSidebar()">
-                    <i class="fas fa-times"></i>
-                </button>
+    <div class="min-h-screen">
+        <!-- Navbar -->
+        <nav class="fixed top-0 z-50 w-full border-b border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700">
+            <div class="px-3 py-3 lg:px-5 lg:pl-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-start">
+                        <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
+                            <span class="sr-only">Open sidebar</span>
+                            <i class="fas fa-bars w-6 h-6"></i>
+                        </button>
+                        <a href="{{ path('admin_articles_index') }}" class="flex ml-2 md:mr-24">
+                            <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">Admin Panel</span>
+                        </a>
+                    </div>
+                    <div class="flex items-center">
+                        <a href="{{ path('app_logout') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                            <i class="fas fa-sign-out-alt w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"></i>
+                            <span class="ml-3">Sign Out</span>
+                        </a>
+                    </div>
+                </div>
             </div>
-            <div class="p-3">
-                <ul class="nav flex-column">
-                    <li class="nav-item mb-2">
-                        <a href="{{ path('admin_articles_index') }}" 
-                           class="nav-link text-white {% if app.request.get('_route') starts with 'admin_articles_' %}active bg-primary{% endif %}">
-                            <i class="fas fa-newspaper me-2"></i>
-                            Articles
+        </nav>
+
+        <!-- Sidebar -->
+        <aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700" aria-label="Sidebar">
+            <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
+                <ul class="space-y-2 font-medium">
+                    <li>
+                        <a href="{{ path('admin_articles_index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group {% if app.request.get('_route') starts with 'admin_articles_' %}bg-gray-100 dark:bg-gray-700{% endif %}">
+                            <i class="fas fa-newspaper w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"></i>
+                            <span class="ml-3">Articles</span>
                         </a>
                     </li>
-                    <li class="nav-item mb-2">
-                        <a href="{{ path('admin_images_index') }}" 
-                           class="nav-link text-white {% if app.request.get('_route') starts with 'admin_images_' %}active bg-primary{% endif %}">
-                            <i class="fas fa-images me-2"></i>
-                            Image Gallery
+                    <li>
+                        <a href="{{ path('admin_images_index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group {% if app.request.get('_route') starts with 'admin_images_' %}bg-gray-100 dark:bg-gray-700{% endif %}">
+                            <i class="fas fa-images w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"></i>
+                            <span class="ml-3">Images</span>
                         </a>
                     </li>
-                    <li class="nav-item mt-4">
-                        <a href="{{ path('app_home') }}" 
-                           class="nav-link text-white"
-                           target="_blank">
-                            <i class="fas fa-external-link-alt me-2"></i>
-                            View Website
+                    <li>
+                        <a href="{{ path('admin_settings_index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group {% if app.request.get('_route') starts with 'admin_settings_' %}bg-gray-100 dark:bg-gray-700{% endif %}">
+                            <i class="fas fa-cog w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"></i>
+                            <span class="ml-3">Settings</span>
+                        </a>
+                    </li>
+                    <li class="mt-4">
+                        <a href="{{ path('app_home') }}" target="_blank" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                            <i class="fas fa-external-link-alt w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"></i>
+                            <span class="ml-3">View Website</span>
                         </a>
                     </li>
                 </ul>
             </div>
-        </div>
+        </aside>
 
-        <!-- Main Content -->
-        <div class="flex-grow-1">
-            <!-- Top Navigation -->
-            <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom px-3">
-                <button class="btn btn-link d-lg-none" onclick="toggleSidebar()">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <div class="ms-auto">
-                    <div class="dropdown">
-                        <button class="btn btn-link text-dark dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown">
-                            <i class="fas fa-user me-2"></i>
-                            {{ app.user.email }}
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <a class="dropdown-item" href="{{ path('app_home') }}" target="_blank">
-                                    <i class="fas fa-external-link-alt me-2"></i>
-                                    View Website
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item" href="{{ path('app_logout') }}">
-                                    <i class="fas fa-sign-out-alt me-2"></i>
-                                    Logout
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
-
-            <!-- Page Content -->
-            <div class="content p-4">
+        <!-- Main content -->
+        <div class="p-4 sm:ml-64">
+            <div class="p-4 mt-14">
                 {% block admin_content %}{% endblock %}
             </div>
         </div>
     </div>
 {% endblock %}
 
-{% block stylesheets %}
-    {{ parent() }}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        @media (max-width: 991.98px) {
-            .sidebar {
-                position: fixed;
-                top: 0;
-                left: -250px;
-                height: 100vh;
-                z-index: 1000;
-                transition: left 0.3s ease-in-out;
-            }
-            
-            .sidebar.show {
-                left: 0;
-            }
-        }
-
-        .nav-link {
-            border-radius: 4px;
-            transition: all 0.2s;
-        }
-
-        .nav-link:hover:not(.active) {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .content {
-            min-height: calc(100vh - 56px);
-        }
-    </style>
-{% endblock %}
-
 {% block javascripts %}
     {{ parent() }}
     <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('show');
-        }
+        // Mobile menu functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarToggle = document.querySelector('[data-drawer-toggle="logo-sidebar"]');
+            const sidebar = document.getElementById('logo-sidebar');
+
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('-translate-x-full');
+            });
+        });
     </script>
 {% endblock %} 

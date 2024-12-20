@@ -1,0 +1,212 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Settings{% endblock %}
+
+{% block admin_content %}
+    <div class="space-y-6">
+        <!-- Header -->
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-semibold tracking-tight">Settings</h1>
+                <p class="text-sm text-muted-foreground">Configure your website settings.</p>
+            </div>
+        </div>
+
+        {% for message in app.flashes('success') %}
+            <div class="rounded-lg bg-green-50 p-4 text-sm text-green-500 flex justify-between items-center" role="alert">
+                <span>{{ message }}</span>
+                <button type="button" class="text-green-500 hover:text-green-600" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        {% endfor %}
+
+        <!-- Image Settings Card -->
+        <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
+            <div class="flex flex-col space-y-1.5 p-6 border-b">
+                <h3 class="font-semibold leading-none tracking-tight">Image Settings</h3>
+                <p class="text-sm text-muted-foreground">Configure image upload and processing options.</p>
+            </div>
+            <div class="p-6">
+                {{ form_start(image_settings_form, {'attr': {'class': 'space-y-6'}}) }}
+                    <div class="space-y-4">
+                        <!-- Enable Image Resizing -->
+                        <div class="flex items-center space-x-2">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                {{ form_widget(image_settings_form.resize_enabled, {
+                                    'attr': {
+                                        'class': 'sr-only peer',
+                                        'data-action': 'change->toggle#toggle'
+                                    }
+                                }) }}
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                            </label>
+                            <span class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Enable Image Resizing</span>
+                        </div>
+
+                        <!-- Resize Settings -->
+                        <div data-controller="toggle" data-toggle-target="content" class="{% if not image_settings_form.resize_enabled.vars.data %}hidden{% endif %}">
+                            <div class="space-y-4 rounded-lg border bg-muted/50 p-4 mt-2">
+                                <!-- Max Width -->
+                                <div class="space-y-2">
+                                    {{ form_label(image_settings_form.max_width, 'Maximum Width (pixels)', {
+                                        'label_attr': {'class': 'text-sm font-medium leading-none'}
+                                    }) }}
+                                    {{ form_widget(image_settings_form.max_width, {
+                                        'attr': {
+                                            'min': 100,
+                                            'max': 4096,
+                                            'class': 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+                                        }
+                                    }) }}
+                                </div>
+
+                                <!-- Max Height -->
+                                <div class="space-y-2">
+                                    {{ form_label(image_settings_form.max_height, 'Maximum Height (pixels)', {
+                                        'label_attr': {'class': 'text-sm font-medium leading-none'}
+                                    }) }}
+                                    {{ form_widget(image_settings_form.max_height, {
+                                        'attr': {
+                                            'min': 100,
+                                            'max': 4096,
+                                            'class': 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+                                        }
+                                    }) }}
+                                </div>
+
+                                <!-- JPEG Quality -->
+                                <div class="space-y-2">
+                                    {{ form_label(image_settings_form.jpeg_quality, 'JPEG Quality (%)', {
+                                        'label_attr': {'class': 'text-sm font-medium leading-none'}
+                                    }) }}
+                                    {{ form_widget(image_settings_form.jpeg_quality, {
+                                        'attr': {
+                                            'min': 1,
+                                            'max': 100,
+                                            'class': 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+                                        }
+                                    }) }}
+                                </div>
+
+                                <!-- WebP Conversion -->
+                                <div class="flex items-center space-x-2">
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        {{ form_widget(image_settings_form.webp_enabled, {
+                                            'attr': {
+                                                'class': 'sr-only peer'
+                                            }
+                                        }) }}
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                    </label>
+                                    <span class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Enable WebP Conversion</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-end space-x-4 pt-6">
+                        <button type="submit" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+                            <i class="fas fa-save mr-2"></i>
+                            Save Changes
+                        </button>
+                    </div>
+                {{ form_end(image_settings_form, {'render_rest': false}) }}
+            </div>
+        </div>
+
+        <!-- Other Settings Cards -->
+        <div class="grid gap-6 md:grid-cols-2">
+            <!-- General Settings -->
+            <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
+                <div class="flex flex-col space-y-1.5 p-6">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-cog text-muted-foreground"></i>
+                        <h3 class="font-semibold leading-none tracking-tight">General Settings</h3>
+                    </div>
+                    <p class="text-sm text-muted-foreground">Configure general website settings.</p>
+                </div>
+                <div class="p-6 pt-0">
+                    <button disabled class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
+                        <i class="fas fa-wrench mr-2"></i>
+                        Configure
+                    </button>
+                </div>
+            </div>
+
+            <!-- Email Settings -->
+            <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
+                <div class="flex flex-col space-y-1.5 p-6">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-envelope text-muted-foreground"></i>
+                        <h3 class="font-semibold leading-none tracking-tight">Email Settings</h3>
+                    </div>
+                    <p class="text-sm text-muted-foreground">Configure email server settings.</p>
+                </div>
+                <div class="p-6 pt-0">
+                    <button disabled class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
+                        <i class="fas fa-envelope-open mr-2"></i>
+                        Configure
+                    </button>
+                </div>
+            </div>
+
+            <!-- User Settings -->
+            <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
+                <div class="flex flex-col space-y-1.5 p-6">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-users text-muted-foreground"></i>
+                        <h3 class="font-semibold leading-none tracking-tight">User Settings</h3>
+                    </div>
+                    <p class="text-sm text-muted-foreground">Manage user roles and permissions.</p>
+                </div>
+                <div class="p-6 pt-0">
+                    <button disabled class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
+                        <i class="fas fa-user-cog mr-2"></i>
+                        Configure
+                    </button>
+                </div>
+            </div>
+
+            <!-- Appearance Settings -->
+            <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
+                <div class="flex flex-col space-y-1.5 p-6">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-paint-brush text-muted-foreground"></i>
+                        <h3 class="font-semibold leading-none tracking-tight">Appearance</h3>
+                    </div>
+                    <p class="text-sm text-muted-foreground">Customize the website theme.</p>
+                </div>
+                <div class="p-6 pt-0">
+                    <button disabled class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
+                        <i class="fas fa-palette mr-2"></i>
+                        Configure
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const resizeToggle = document.querySelector('[data-action="change->toggle#toggle"]');
+            const resizeSettings = document.querySelector('[data-toggle-target="content"]');
+
+            // Initial state
+            if (resizeToggle.checked) {
+                resizeSettings.classList.remove('hidden');
+            }
+
+            resizeToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    resizeSettings.classList.remove('hidden');
+                } else {
+                    resizeSettings.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+{% endblock %} 
