@@ -33,8 +33,8 @@ class ArticleType extends AbstractType
             ])
             ->add('content', TextareaType::class, [
                 'attr' => [
-                    'class' => 'suneditor-textarea',
                     'data-controller' => 'suneditor',
+                    'rows' => 10,
                 ],
             ])
         ;

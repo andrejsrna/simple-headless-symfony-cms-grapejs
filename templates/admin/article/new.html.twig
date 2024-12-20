@@ -1,38 +1,77 @@
-{% extends 'base.html.twig' %}
+{% extends 'admin/base.html.twig' %}
 
 {% block title %}Create New Article{% endblock %}
 
-{% block body %}
-    <div class="container py-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="h2 mb-0">Create New Article</h1>
-            <a href="{{ path('admin_articles_index') }}" class="btn btn-outline-secondary">
-                Back to List
-            </a>
-        </div>
+{% block admin_content %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2 mb-0">Create New Article</h1>
+        <a href="{{ path('admin_articles_index') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>
+            Back to List
+        </a>
+    </div>
 
-        <div class="card shadow-sm">
-            <div class="card-body">
-                {{ form_start(form, {'attr': {'class': 'needs-validation'}}) }}
-                    <div class="mb-3">
-                        {{ form_label(form.title, null, {'label_attr': {'class': 'form-label'}}) }}
-                        {{ form_widget(form.title, {'attr': {'class': 'form-control'}}) }}
-                        {{ form_errors(form.title) }}
-                    </div>
-
-                    {{ include('admin/article/_image_upload.html.twig') }}
-
-                    <div class="mb-3">
-                        {{ form_label(form.content, null, {'label_attr': {'class': 'form-label'}}) }}
-                        {{ form_widget(form.content) }}
-                        {{ form_errors(form.content) }}
-                    </div>
-
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">Create Article</button>
-                    </div>
-                {{ form_end(form) }}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
+        {% endfor %}
+    {% endfor %}
+
+    {% if form_errors(form) %}
+        <div class="alert alert-danger">
+            {{ form_errors(form) }}
+        </div>
+    {% endif %}
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            {{ form_start(form, {
+                'attr': {
+                    'class': 'needs-validation',
+                    'novalidate': 'novalidate',
+                    'onsubmit': 'console.log("Form submitting")'
+                }
+            }) }}
+                <div class="mb-3">
+                    {{ form_label(form.title, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.title, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.title) }}
+                </div>
+
+                {{ include('admin/article/_image_upload.html.twig') }}
+
+                <div class="mb-3">
+                    {{ form_label(form.content, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.content) }}
+                    {{ form_errors(form.content) }}
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>
+                        Create Article
+                    </button>
+                </div>
+            {{ form_end(form) }}
         </div>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(e) {
+                console.log('Form submitted');
+                const formData = new FormData(form);
+                for (let [key, value] of formData.entries()) {
+                    console.log(key + ': ' + value);
+                }
+            });
+        });
+    </script>
 {% endblock %}

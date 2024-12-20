@@ -1,0 +1,123 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="sidebar bg-dark text-white" style="min-width: 250px; min-height: 100vh;" id="sidebar">
+            <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+                <h5 class="m-0">Admin Panel</h5>
+                <button class="btn btn-link text-white d-lg-none p-0" onclick="toggleSidebar()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item mb-2">
+                        <a href="{{ path('admin_articles_index') }}" 
+                           class="nav-link text-white {% if app.request.get('_route') starts with 'admin_articles_' %}active bg-primary{% endif %}">
+                            <i class="fas fa-newspaper me-2"></i>
+                            Articles
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="{{ path('admin_images_index') }}" 
+                           class="nav-link text-white {% if app.request.get('_route') starts with 'admin_images_' %}active bg-primary{% endif %}">
+                            <i class="fas fa-images me-2"></i>
+                            Image Gallery
+                        </a>
+                    </li>
+                    <li class="nav-item mt-4">
+                        <a href="{{ path('app_home') }}" 
+                           class="nav-link text-white"
+                           target="_blank">
+                            <i class="fas fa-external-link-alt me-2"></i>
+                            View Website
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-grow-1">
+            <!-- Top Navigation -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom px-3">
+                <button class="btn btn-link d-lg-none" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="ms-auto">
+                    <div class="dropdown">
+                        <button class="btn btn-link text-dark dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown">
+                            <i class="fas fa-user me-2"></i>
+                            {{ app.user.email }}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" href="{{ path('app_home') }}" target="_blank">
+                                    <i class="fas fa-external-link-alt me-2"></i>
+                                    View Website
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{{ path('app_logout') }}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>
+                                    Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Page Content -->
+            <div class="content p-4">
+                {% block admin_content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @media (max-width: 991.98px) {
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: -250px;
+                height: 100vh;
+                z-index: 1000;
+                transition: left 0.3s ease-in-out;
+            }
+            
+            .sidebar.show {
+                left: 0;
+            }
+        }
+
+        .nav-link {
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover:not(.active) {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .content {
+            min-height: calc(100vh - 56px);
+        }
+    </style>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('show');
+        }
+    </script>
+{% endblock %} 

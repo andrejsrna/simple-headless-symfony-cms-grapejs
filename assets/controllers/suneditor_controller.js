@@ -4,6 +4,15 @@ import plugins from 'suneditor/src/plugins';
 
 export default class extends Controller {
     connect() {
+        // Check if editor is already initialized
+        if (this.editor) {
+            return;
+        }
+
+        // Generate a unique ID for the editor
+        const uniqueId = `suneditor_${Math.random().toString(36).substr(2, 9)}`;
+        this.element.id = uniqueId;
+
         this.editor = suneditor.create(this.element, {
             plugins: plugins,
             buttonList: [
@@ -21,22 +30,35 @@ export default class extends Controller {
             width: '100%',
             defaultStyle: 'font-family: inherit; font-size: 1rem; line-height: 1.5;',
             onChange: (contents) => {
+                console.log('Editor content changed:', contents);
                 this.element.value = contents;
+                // Dispatch input event to trigger form validation
+                this.element.dispatchEvent(new Event('input', { bubbles: true }));
             }
         });
 
         // Set initial content if exists
         if (this.element.value) {
+            console.log('Setting initial content:', this.element.value);
             this.editor.setContents(this.element.value);
         }
 
         // Handle form submission
-        this.element.closest('form')?.addEventListener('submit', () => {
-            this.element.value = this.editor.getContents();
-        });
+        const form = this.element.closest('form');
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                console.log('Form submitting, getting editor contents');
+                const contents = this.editor.getContents();
+                console.log('Editor contents:', contents);
+                this.element.value = contents;
+            });
+        }
     }
 
     disconnect() {
-        this.editor.destroy();
+        if (this.editor) {
+            this.editor.destroy();
+            this.editor = null;
+        }
     }
 } 

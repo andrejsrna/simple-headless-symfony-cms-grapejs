@@ -25,18 +25,23 @@ class AdminArticleController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'new')]
+    #[Route('/new', name: 'new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $em): Response
     {
         $article = new Article();
         $form = $this->createForm(ArticleType::class, $article);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $em->persist($article);
-            $em->flush();
+        if ($form->isSubmitted()) {
+            if ($form->isValid()) {
+                $em->persist($article);
+                $em->flush();
 
-            return $this->redirectToRoute('admin_articles_index');
+                $this->addFlash('success', 'Article created successfully.');
+                return $this->redirectToRoute('admin_articles_index');
+            } else {
+                $this->addFlash('error', 'There were errors in your submission.');
+            }
         }
 
         return $this->render('admin/article/new.html.twig', [
@@ -61,6 +66,7 @@ class AdminArticleController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
 
+            $this->addFlash('success', 'Article updated successfully.');
             return $this->redirectToRoute('admin_articles_index');
         }
 
@@ -76,6 +82,7 @@ class AdminArticleController extends AbstractController
         if ($this->isCsrfTokenValid('delete'.$article->getId(), $request->request->get('_token'))) {
             $em->remove($article);
             $em->flush();
+            $this->addFlash('success', 'Article deleted successfully.');
         }
 
         return $this->redirectToRoute('admin_articles_index');
