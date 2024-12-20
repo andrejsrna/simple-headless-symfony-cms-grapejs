@@ -1,0 +1,49 @@
+{% block image_upload %}
+    <div class="mb-3">
+        {{ form_label(form.imageFile, null, {'label_attr': {'class': 'form-label'}}) }}
+        
+        <div class="relative" data-controller="image-upload">
+            {# Hidden file input #}
+            {{ form_widget(form.imageFile, {
+                'attr': {
+                    'class': 'hidden',
+                    'data-image-upload-target': 'input',
+                    'data-action': 'image-upload#preview'
+                }
+            }) }}
+            
+            {# Drag and drop zone #}
+            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer transition-colors"
+                 data-action="click->image-upload#browse">
+                {# Current or placeholder image #}
+                {% if article is defined and article.imageName %}
+                    <img src="{{ vich_uploader_asset(article, 'imageFile') }}" 
+                         class="mx-auto mb-4 max-h-48 rounded"
+                         data-image-upload-target="preview">
+                {% else %}
+                    <img src="" class="mx-auto mb-4 max-h-48 rounded hidden" data-image-upload-target="preview">
+                {% endif %}
+                
+                {# Placeholder content #}
+                <div data-image-upload-target="placeholder" class="{{ article is defined and article.imageName ? 'hidden' : '' }}">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <p class="mt-1 text-sm text-gray-600">
+                        <span class="font-medium text-blue-600 hover:text-blue-500">Upload a file</span> or drag and drop
+                    </p>
+                    <p class="mt-1 text-xs text-gray-500">PNG, JPG, WEBP up to 5MB</p>
+                </div>
+                
+                {# Filename display #}
+                <p class="mt-2 text-sm text-gray-600" data-image-upload-target="filename">
+                    {% if article is defined and article.imageName %}
+                        {{ article.imageName }}
+                    {% endif %}
+                </p>
+            </div>
+            
+            {{ form_errors(form.imageFile) }}
+        </div>
+    </div>
+{% endblock %} 

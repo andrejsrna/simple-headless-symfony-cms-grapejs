@@ -1,3 +1,5 @@
+@import 'suneditor/dist/css/suneditor.min.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -27,4 +29,62 @@
   .error-message {
     @apply mt-2 text-sm text-red-600;
   }
+}
+
+/* Suneditor custom styles */
+.sun-editor {
+    @apply !border-gray-300 !rounded-md;
+}
+
+.sun-editor .se-toolbar {
+    @apply !border-gray-300 !rounded-t-md !bg-gray-50;
+}
+
+.sun-editor .se-main {
+    @apply !border-gray-300;
+}
+
+.sun-editor .se-btn:hover {
+    @apply !bg-gray-200;
+}
+
+.sun-editor .se-btn:active {
+    @apply !bg-gray-300;
+}
+
+/* Image upload styles */
+.image-upload-zone {
+    @apply relative border-2 border-dashed border-gray-300 rounded-lg p-6 transition-all duration-150 ease-in-out;
+}
+
+.image-upload-zone:hover {
+    @apply border-blue-500 bg-blue-50;
+}
+
+.image-upload-zone.dragging {
+    @apply border-blue-500 bg-blue-100;
+}
+
+.image-preview {
+    @apply mx-auto max-h-48 rounded shadow-sm transition-transform duration-200;
+}
+
+.image-preview:hover {
+    @apply transform scale-105;
+}
+
+.upload-icon {
+    @apply mx-auto h-12 w-12 text-gray-400;
+}
+
+.upload-text {
+    @apply mt-2 text-sm text-gray-600;
+}
+
+.upload-text-highlight {
+    @apply font-medium text-blue-600 hover:text-blue-500;
+}
+
+.filename-text {
+    @apply mt-2 text-sm text-gray-500 truncate max-w-full;
 }

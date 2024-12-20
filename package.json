@@ -302,6 +302,7 @@
     "style-loader": "^3.3.4",
     "stylehacks": "^7.0.4",
     "sucrase": "^3.35.0",
+    "suneditor": "^2.47.0",
     "supports-color": "^5.5.0",
     "supports-preserve-symlinks-flag": "^1.0.0",
     "svgo": "^3.3.2",

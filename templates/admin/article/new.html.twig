@@ -20,9 +20,11 @@
                         {{ form_errors(form.title) }}
                     </div>
 
+                    {{ include('admin/article/_image_upload.html.twig') }}
+
                     <div class="mb-3">
                         {{ form_label(form.content, null, {'label_attr': {'class': 'form-label'}}) }}
-                        {{ form_widget(form.content, {'attr': {'class': 'form-control', 'rows': 10}}) }}
+                        {{ form_widget(form.content) }}
                         {{ form_errors(form.content) }}
                     </div>
 
