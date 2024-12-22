@@ -8,6 +8,7 @@ import 'grapesjs/dist/css/grapes.min.css';
 export default class extends Controller {
     static values = {
         pageId: Number,
+        pageSlug: String,
         content: String
     }
 
@@ -232,6 +233,14 @@ export default class extends Controller {
             }
         });
 
+        // Add preview command
+        editor.Commands.add('preview-page', {
+            run: (editor) => {
+                // Open the page in a new tab using the slug
+                window.open(`/page/${this.pageSlugValue}`, '_blank');
+            }
+        });
+
         // Add save command
         editor.Commands.add('save-page', {
             run: async (editor) => {
@@ -278,13 +287,21 @@ export default class extends Controller {
             run: (editor) => editor.runCommand('save-page')
         });
 
-        // Add save button to the top bar
-        editor.Panels.addButton('options', [{
-            id: 'save-btn',
-            label: 'Save',
-            command: 'save-page',
-            attributes: { title: 'Save Changes' }
-        }]);
+        // Add buttons to the top bar
+        editor.Panels.addButton('options', [
+            {
+                id: 'save-btn',
+                label: 'Save',
+                command: 'save-page',
+                attributes: { title: 'Save Changes' }
+            },
+            {
+                id: 'preview-btn',
+                label: '👁 Preview',
+                command: 'preview-page',
+                attributes: { title: 'Preview Page' }
+            }
+        ]);
 
         // Store editor instance
         this.editor = editor;

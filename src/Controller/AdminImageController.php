@@ -2,6 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\Image;
+use App\Repository\ImageRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -11,6 +14,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Filesystem\Filesystem;
 use App\Service\ImageProcessor;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -19,7 +23,9 @@ class AdminImageController extends AbstractController
 {
     public function __construct(
         private ImageProcessor $imageProcessor,
-        private ValidatorInterface $validator
+        private ValidatorInterface $validator,
+        private EntityManagerInterface $entityManager,
+        private ImageRepository $imageRepository
     ) {}
 
     #[Route('/', name: 'index')]
@@ -33,11 +39,15 @@ class AdminImageController extends AbstractController
             $finder->files()->in($this->getUploadsDir())->name('/\.(jpg|jpeg|png|gif|webp)$/i');
             
             foreach ($finder as $file) {
+                $filename = $file->getFilename();
+                $imageEntity = $this->imageRepository->findOneByFilename($filename);
+                
                 $images[] = [
-                    'name' => $file->getFilename(),
-                    'path' => '/uploads/articles/' . $file->getFilename(),
+                    'name' => $filename,
+                    'path' => '/uploads/articles/' . $filename,
                     'size' => $this->formatFileSize($file->getSize()),
-                    'modified' => new \DateTime('@' . $file->getMTime())
+                    'modified' => new \DateTime('@' . $file->getMTime()),
+                    'altText' => $imageEntity ? $imageEntity->getAltText() : null
                 ];
             }
         }
@@ -45,6 +55,24 @@ class AdminImageController extends AbstractController
         return $this->render('admin/image/index.html.twig', [
             'images' => $images
         ]);
+    }
+
+    #[Route('/update-alt/{filename}', name: 'update_alt', methods: ['POST'])]
+    public function updateAlt(string $filename, Request $request): JsonResponse
+    {
+        $altText = $request->request->get('altText');
+        
+        $image = $this->imageRepository->findOneByFilename($filename);
+        if (!$image) {
+            $image = new Image();
+            $image->setFilename($filename);
+        }
+        
+        $image->setAltText($altText);
+        $this->entityManager->persist($image);
+        $this->entityManager->flush();
+        
+        return new JsonResponse(['success' => true]);
     }
 
     #[Route('/upload', name: 'upload', methods: ['POST'])]
@@ -100,6 +128,12 @@ class AdminImageController extends AbstractController
             // Process the image (resize and convert to WebP if enabled)
             $file = new File($uploadDir . '/' . $newFilename);
             $processedImage = $this->imageProcessor->processImage($file);
+            
+            // Create Image entity
+            $image = new Image();
+            $image->setFilename($processedImage->getFilename());
+            $this->entityManager->persist($image);
+            $this->entityManager->flush();
 
             // Remove the original file if it was converted to WebP
             if ($processedImage->getFilename() !== $newFilename) {

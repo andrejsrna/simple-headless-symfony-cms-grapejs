@@ -22,7 +22,10 @@
 {% endblock %}
 
 {% block body %}
-    <div data-controller="grapejs" data-grapejs-page-id-value="{{ page.id }}" data-grapejs-content-value="{{ page.content|escape('html_attr') }}">
+    <div data-controller="grapejs" 
+         data-grapejs-page-id-value="{{ page.id }}"
+         data-grapejs-page-slug-value="{{ page.slug }}"
+         data-grapejs-content-value="{{ page.content|escape('html_attr') }}">
         <div id="gjs">{{ page.content|raw }}</div>
     </div>
 {% endblock %}
