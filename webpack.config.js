@@ -15,7 +15,29 @@ Encore
     .enableBuildNotifications()
     .enableSourceMaps(!Encore.isProduction())
     .enableVersioning(Encore.isProduction())
+    .enableSassLoader()
     .enablePostCssLoader()
 ;
 
-module.exports = Encore.getWebpackConfig(); 
+// Get the full Webpack config
+const fullConfig = Encore.getWebpackConfig();
+
+// Add a specific rule for node_modules CSS
+fullConfig.module.rules.unshift({
+    test: /\.css$/,
+    include: /node_modules/,
+    use: ['style-loader', 'css-loader']
+});
+
+// Safely configure Babel loader if it exists
+const babelLoader = fullConfig.module.rules.find(
+    rule => rule.loader === 'babel-loader'
+);
+if (babelLoader) {
+    babelLoader.options = {
+        ...babelLoader.options,
+        sourceType: 'unambiguous'
+    };
+}
+
+module.exports = fullConfig; 

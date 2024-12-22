@@ -1,17 +1,21 @@
 import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller {
-    static targets = ['content'];
+    static targets = ['content', 'trigger']
 
     connect() {
-        // Initial state is handled by the template
+        // Get the initial state from the trigger element
+        const triggerElement = this.element.querySelector('[data-action*="toggle#toggle"]');
+        if (triggerElement) {
+            this.toggleContent(triggerElement.checked);
+        }
     }
 
     toggle(event) {
-        if (event.target.checked) {
-            this.contentTarget.classList.remove('hidden');
-        } else {
-            this.contentTarget.classList.add('hidden');
-        }
+        this.toggleContent(event.target.checked);
+    }
+
+    toggleContent(isChecked) {
+        this.contentTarget.classList.toggle('hidden', !isChecked);
     }
 } 

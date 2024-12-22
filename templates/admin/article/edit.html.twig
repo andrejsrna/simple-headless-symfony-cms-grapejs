@@ -8,7 +8,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <h1 class="text-2xl font-semibold tracking-tight">Edit Article</h1>
-                <p class="text-sm text-muted-foreground">Make changes to your article.</p>
+                <p class="text-sm text-muted-foreground">Update your article content and settings.</p>
             </div>
             <a href="{{ path('admin_articles_index') }}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
                 <i class="fas fa-arrow-left mr-2"></i>
@@ -26,20 +26,17 @@
         <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
             <div class="p-6">
                 {{ form_start(form, {'attr': {'class': 'space-y-6'}}) }}
+                    <!-- Content Tab -->
                     <div class="space-y-4">
                         <div>
                             {{ form_label(form.title, 'Title', {'label_attr': {'class': 'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'}}) }}
-                            {{ form_widget(form.title, {'attr': {
-                                'class': 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
-                            }}) }}
+                            {{ form_widget(form.title) }}
                             {{ form_errors(form.title, {'attr': {'class': 'text-sm text-red-500 mt-1'}}) }}
                         </div>
 
                         <div>
                             {{ form_label(form.content, 'Content', {'label_attr': {'class': 'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'}}) }}
-                            {{ form_widget(form.content, {'attr': {
-                                'class': 'flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
-                            }}) }}
+                            {{ form_widget(form.content) }}
                             {{ form_errors(form.content, {'attr': {'class': 'text-sm text-red-500 mt-1'}}) }}
                         </div>
 
@@ -47,9 +44,43 @@
                             {{ form_label(form.imageFile, 'Image', {'label_attr': {'class': 'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'}}) }}
                             {% include 'admin/article/_image_upload.html.twig' with {
                                 form: form,
-                                current_image: article.imageName ? vich_uploader_asset(article, 'imageFile') : null
+                                current_image: article.imageName ? '/uploads/articles/' ~ article.imageName : null
                             } %}
                             {{ form_errors(form.imageFile, {'attr': {'class': 'text-sm text-red-500 mt-1'}}) }}
+                        </div>
+                    </div>
+
+                    <!-- SEO Section -->
+                    <div class="border-t pt-6 mt-6">
+                        <h3 class="text-lg font-medium mb-4">SEO Settings</h3>
+                        <div class="space-y-4">
+                            <div>
+                                {{ form_label(form.slug, 'URL Slug', {'label_attr': {'class': 'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'}}) }}
+                                {{ form_widget(form.slug) }}
+                                {{ form_errors(form.slug, {'attr': {'class': 'text-sm text-red-500 mt-1'}}) }}
+                                <p class="text-xs text-muted-foreground mt-1">The URL-friendly version of the title.</p>
+                            </div>
+
+                            <div>
+                                {{ form_label(form.metaTitle, 'Meta Title', {'label_attr': {'class': 'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'}}) }}
+                                {{ form_widget(form.metaTitle) }}
+                                {{ form_errors(form.metaTitle, {'attr': {'class': 'text-sm text-red-500 mt-1'}}) }}
+                                <p class="text-xs text-muted-foreground mt-1">Title that appears in search engine results.</p>
+                            </div>
+
+                            <div>
+                                {{ form_label(form.metaDescription, 'Meta Description', {'label_attr': {'class': 'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'}}) }}
+                                {{ form_widget(form.metaDescription) }}
+                                {{ form_errors(form.metaDescription, {'attr': {'class': 'text-sm text-red-500 mt-1'}}) }}
+                                <p class="text-xs text-muted-foreground mt-1">Brief description that appears in search engine results.</p>
+                            </div>
+
+                            <div>
+                                {{ form_label(form.metaKeywords, 'Meta Keywords', {'label_attr': {'class': 'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'}}) }}
+                                {{ form_widget(form.metaKeywords) }}
+                                {{ form_errors(form.metaKeywords, {'attr': {'class': 'text-sm text-red-500 mt-1'}}) }}
+                                <p class="text-xs text-muted-foreground mt-1">Comma-separated keywords for search engines.</p>
+                            </div>
                         </div>
                     </div>
 

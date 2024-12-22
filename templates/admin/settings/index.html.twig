@@ -28,25 +28,31 @@
                 <p class="text-sm text-muted-foreground">Configure image upload and processing options.</p>
             </div>
             <div class="p-6">
-                {{ form_start(image_settings_form, {'attr': {'class': 'space-y-6'}}) }}
+                {{ form_start(image_settings_form, {
+                    'attr': {
+                        'class': 'space-y-6',
+                        'novalidate': 'novalidate'
+                    }
+                }) }}
                     <div class="space-y-4">
-                        <!-- Enable Image Resizing -->
-                        <div class="flex items-center space-x-2">
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                {{ form_widget(image_settings_form.resize_enabled, {
-                                    'attr': {
-                                        'class': 'sr-only peer',
-                                        'data-action': 'change->toggle#toggle'
-                                    }
-                                }) }}
-                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                            </label>
-                            <span class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Enable Image Resizing</span>
-                        </div>
-
                         <!-- Resize Settings -->
-                        <div data-controller="toggle" data-toggle-target="content" class="{% if not image_settings_form.resize_enabled.vars.data %}hidden{% endif %}">
-                            <div class="space-y-4 rounded-lg border bg-muted/50 p-4 mt-2">
+                        <div data-controller="toggle">
+                            <!-- Enable Image Resizing -->
+                            <div class="flex items-center space-x-2">
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    {{ form_widget(image_settings_form.resize_enabled, {
+                                        'attr': {
+                                            'class': 'sr-only peer',
+                                            'data-action': 'change->toggle#toggle'
+                                        }
+                                    }) }}
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                </label>
+                                <span class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Enable Image Resizing</span>
+                            </div>
+
+                            <!-- Resize Settings Content -->
+                            <div data-toggle-target="content" class="space-y-4 rounded-lg border bg-muted/50 p-4 mt-2 {% if not image_settings_form.resize_enabled.vars.data %}hidden{% endif %}">
                                 <!-- Max Width -->
                                 <div class="space-y-2">
                                     {{ form_label(image_settings_form.max_width, 'Maximum Width (pixels)', {
@@ -101,17 +107,52 @@
                                     </label>
                                     <span class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Enable WebP Conversion</span>
                                 </div>
+
+                                <!-- Auto Alt Tags and Format Section -->
+                                <div data-controller="toggle">
+                                    <!-- Auto Alt Tags Toggle -->
+                                    <div class="flex items-center space-x-2">
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            {{ form_widget(image_settings_form.auto_alt_enabled, {
+                                                'attr': {
+                                                    'class': 'sr-only peer',
+                                                    'data-action': 'change->toggle#toggle'
+                                                }
+                                            }) }}
+                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                        </label>
+                                        <span class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                            Automatic Alt Tags
+                                        </span>
+                                    </div>
+
+                                    <!-- Alt Tag Format -->
+                                    <div data-toggle-target="content" class="space-y-2 mt-4 {% if not image_settings_form.auto_alt_enabled.vars.data %}hidden{% endif %}">
+                                        {{ form_label(image_settings_form.alt_format, 'Alt Tag Format', {
+                                            'label_attr': {'class': 'text-sm font-medium leading-none'}
+                                        }) }}
+                                        {{ form_widget(image_settings_form.alt_format, {
+                                            'attr': {
+                                                'class': 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+                                                'placeholder': '[filename] image'
+                                            }
+                                        }) }}
+                                        <p class="text-sm text-muted-foreground">
+                                            Use [filename] as a placeholder for the image name
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="flex items-center justify-end space-x-4 pt-6">
                         <button type="submit" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
-                            <i class="fas fa-save mr-2"></i>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                             Save Changes
                         </button>
                     </div>
-                {{ form_end(image_settings_form, {'render_rest': false}) }}
+                {{ form_end(image_settings_form) }}
             </div>
         </div>
 
@@ -172,16 +213,37 @@
             <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
                 <div class="flex flex-col space-y-1.5 p-6">
                     <div class="flex items-center gap-2">
-                        <i class="fas fa-paint-brush text-muted-foreground"></i>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
                         <h3 class="font-semibold leading-none tracking-tight">Appearance</h3>
                     </div>
-                    <p class="text-sm text-muted-foreground">Customize the website theme.</p>
+                    <p class="text-sm text-muted-foreground">Customize the website appearance and editor settings.</p>
                 </div>
-                <div class="p-6 pt-0">
-                    <button disabled class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
-                        <i class="fas fa-palette mr-2"></i>
-                        Configure
-                    </button>
+                <div class="p-6 space-y-4">
+                    {{ form_start(appearance_settings_form) }}
+                        <!-- GrapeJS Toggle -->
+                        <div class="flex items-center space-x-2">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                {{ form_widget(appearance_settings_form.grapejs_enabled, {
+                                    'attr': {
+                                        'class': 'sr-only peer'
+                                    }
+                                }) }}
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                            </label>
+                            <span class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                Enable GrapeJS Editor
+                            </span>
+                        </div>
+                        <p class="text-sm text-muted-foreground mt-2">
+                            GrapeJS is a powerful page builder that allows you to create and edit pages visually.
+                        </p>
+                        <div class="mt-4">
+                            <button type="submit" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                                Save Appearance
+                            </button>
+                        </div>
+                    {{ form_end(appearance_settings_form) }}
                 </div>
             </div>
         </div>

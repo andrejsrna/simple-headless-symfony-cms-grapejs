@@ -1,0 +1,118 @@
+{% if settings is defined %}
+    <!-- Debug output -->
+    <div class="hidden">
+        Settings exists: {{ dump(settings) }}
+        GrapeJS enabled: {{ dump(settings.isGrapejsEnabled()) }}
+    </div>
+{% else %}
+    <!-- Debug output -->
+    <div class="hidden">
+        Settings not defined
+    </div>
+{% endif %}
+
+{{ form_start(form, {'attr': {'class': 'space-y-6', 'data-controller': 'editor slug'}}) }}
+    <div class="space-y-4">
+        {{ form_row(form.title, {
+            'label_attr': {'class': 'text-sm font-medium leading-none'},
+            'attr': {
+                'class': 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+                'data-slug-target': 'source',
+                'data-action': 'input->slug#generateSlug'
+            }
+        }) }}
+
+        <div class="space-y-4">
+            <div data-editor-target="suneditor" class="rounded-lg border bg-card text-card-foreground shadow-sm">
+                <div class="p-0">
+                    {{ form_row(form.content, {
+                        'label': false
+                    }) }}
+                </div>
+            </div>
+
+            <!-- Published Status -->
+            <div class="flex items-center space-x-2 py-4">
+                <div class="flex items-center space-x-2">
+                    {{ form_widget(form.isPublished, {
+                        'attr': {
+                            'class': 'h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary'
+                        }
+                    }) }}
+                    {{ form_label(form.isPublished, 'Published', {
+                        'label_attr': {
+                            'class': 'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
+                        }
+                    }) }}
+                </div>
+                <div class="text-sm text-muted-foreground">
+                    This page will be visible to the public when published
+                </div>
+            </div>
+
+            {% if settings is defined and settings.isGrapejsEnabled() and form.vars.data.id is not null %}
+                <div class="flex justify-end">
+                    <a href="{{ path('grapejs_editor_page', {'id': form.vars.data.id}) }}" 
+                       class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                            <path d="m15 5 4 4"/>
+                        </svg>
+                        Edit with GrapeJS
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- SEO Settings Accordion -->
+        <div class="rounded-lg border bg-card text-card-foreground shadow-sm" data-controller="accordion">
+            <button type="button" 
+                    class="flex w-full items-center justify-between p-6 text-left" 
+                    data-action="accordion#toggle"
+                    data-accordion-target="trigger">
+                <div>
+                    <h3 class="text-lg font-semibold">SEO Settings</h3>
+                    <p class="text-sm text-muted-foreground">Configure search engine optimization settings</p>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" 
+                     width="16" height="16" 
+                     viewBox="0 0 24 24" 
+                     fill="none" 
+                     stroke="currentColor" 
+                     stroke-width="2" 
+                     stroke-linecap="round" 
+                     stroke-linejoin="round" 
+                     class="transform transition-transform duration-200"
+                     data-accordion-target="icon">
+                    <path d="m6 9 6 6 6-6"/>
+                </svg>
+            </button>
+            
+            <div class="px-6 pb-6 hidden" data-accordion-target="content">
+                <div class="space-y-4">
+                    {{ form_row(form.metaTitle) }}
+                    {{ form_row(form.metaDescription) }}
+                    {{ form_row(form.metaKeywords) }}
+                    {{ form_row(form.slug, {
+                        'attr': {
+                            'class': 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+                            'placeholder': 'Will be generated automatically if left empty',
+                            'data-slug-target': 'output'
+                        }
+                    }) }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex items-center justify-end space-x-4 mt-6">
+        <a href="{{ path('admin_pages_index') }}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+            Back
+        </a>
+        <button type="submit" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Save
+        </button>
+    </div>
+{{ form_end(form) }} 

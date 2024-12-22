@@ -2,62 +2,46 @@
 
 namespace App\Form;
 
-use App\Entity\Article;
+use App\Entity\Page;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\Image;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use App\Repository\SettingsRepository;
 
-class ArticleType extends AbstractType
+class PageType extends AbstractType
 {
+    public function __construct(
+        private SettingsRepository $settingsRepository
+    ) {}
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $settings = $this->settingsRepository->getSettings('image_settings');
+        $grapejsEnabled = $settings?->isGrapejsEnabled() ?? false;
+
         $builder
             ->add('title', TextType::class, [
                 'label' => 'Title',
                 'attr' => [
                     'class' => 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-                    'placeholder' => 'Enter article title'
-                ]
-            ])
-            ->add('slug', TextType::class, [
-                'label' => 'URL Slug',
-                'required' => false,
-                'attr' => [
-                    'class' => 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-                    'placeholder' => 'Enter URL slug (e.g., my-article-title)'
+                    'placeholder' => 'Enter page title'
                 ]
             ])
             ->add('content', TextareaType::class, [
                 'attr' => [
                     'data-controller' => 'suneditor',
                     'rows' => 10,
+                    'class' => 'hidden-if-grapejs',
                 ],
                 'required' => false,
                 'constraints' => [
                     new NotBlank([
                         'message' => 'The content cannot be empty',
                     ]),
-                ],
-            ])
-            ->add('imageFile', FileType::class, [
-                'label' => 'Article Image',
-                'required' => false,
-                'constraints' => [
-                    new Image([
-                        'maxSize' => '5M',
-                        'mimeTypes' => [
-                            'image/jpeg',
-                            'image/png',
-                            'image/webp',
-                        ],
-                        'mimeTypesMessage' => 'Please upload a valid image (JPEG, PNG, WEBP)',
-                    ])
                 ],
             ])
             ->add('metaTitle', TextType::class, [
@@ -85,13 +69,25 @@ class ArticleType extends AbstractType
                     'placeholder' => 'Enter meta keywords (comma-separated)'
                 ]
             ])
+            ->add('slug', TextType::class, [
+                'label' => 'URL Slug',
+                'required' => false,
+                'attr' => [
+                    'class' => 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+                    'placeholder' => 'Enter URL slug (e.g., about-us)'
+                ]
+            ])
+            ->add('isPublished', CheckboxType::class, [
+                'required' => false,
+                'label' => 'Publish',
+            ])
         ;
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Article::class,
+            'data_class' => Page::class,
         ]);
     }
-}
+} 

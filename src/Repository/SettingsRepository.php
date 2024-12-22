@@ -21,24 +21,17 @@ class SettingsRepository extends ServiceEntityRepository
         parent::__construct($registry, Settings::class);
     }
 
-    public function getSettings(string $name): ?array
+    public function getSettings(string $name): ?Settings
     {
         $settings = $this->findOneBy(['name' => $name]);
-        return $settings ? $settings->getValue() : null;
+        dump($settings);
+        return $settings;
     }
 
-    public function saveSettings(string $name, array $value): void
+    public function saveSettings(Settings $settings): void
     {
-        $settings = $this->findOneBy(['name' => $name]);
-        
-        if (!$settings) {
-            $settings = new Settings();
-            $settings->setName($name);
-        }
-
-        $settings->setValue($value);
-        
-        $this->getEntityManager()->persist($settings);
-        $this->getEntityManager()->flush();
+        $em = $this->getEntityManager();
+        $em->persist($settings);
+        $em->flush();
     }
 } 

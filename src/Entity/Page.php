@@ -2,16 +2,15 @@
 
 namespace App\Entity;
 
-use App\Repository\ArticleRepository;
+use App\Repository\PageRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\HttpFoundation\File\File;
-use Vich\UploaderBundle\Mapping\Annotation as Vich;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 
-#[ORM\Entity(repositoryClass: ArticleRepository::class)]
+#[ORM\Entity(repositoryClass: PageRepository::class)]
 #[ORM\HasLifecycleCallbacks]
-#[Vich\Uploadable]
-class Article
+class Page
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -21,19 +20,22 @@ class Article
     #[ORM\Column(length: 255)]
     private ?string $title = null;
 
-    #[ORM\Column(type: 'text', nullable: false)]
+    #[ORM\Column(length: 255, unique: true)]
+    #[Gedmo\Slug(fields: ['title'])]
+    private ?string $slug = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $content = null;
 
-    #[ORM\Column(type: 'datetime_immutable')]
+    #[ORM\Column]
+    private ?bool $isPublished = false;
+
+    #[ORM\Column]
+    #[Gedmo\Timestampable(on: 'create')]
     private ?\DateTimeImmutable $createdAt = null;
 
-    #[Vich\UploadableField(mapping: 'article_images', fileNameProperty: 'imageName')]
-    private ?File $imageFile = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $imageName = null;
-
-    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    #[ORM\Column]
+    #[Gedmo\Timestampable(on: 'update')]
     private ?\DateTimeImmutable $updatedAt = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -45,38 +47,20 @@ class Article
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $metaKeywords = null;
 
-    #[ORM\Column(length: 255, nullable: true, unique: true)]
-    private ?string $slug = null;
-
-    public function setImageFile(?File $imageFile = null): void
-    {
-        $this->imageFile = $imageFile;
-
-        if (null !== $imageFile) {
-            // Update the updatedAt property
-            $this->updatedAt = new \DateTimeImmutable();
-        }
-    }
-
-    public function getImageFile(): ?File
-    {
-        return $this->imageFile;
-    }
-
-    public function setImageName(?string $imageName): void
-    {
-        $this->imageName = $imageName;
-    }
-
-    public function getImageName(): ?string
-    {
-        return $this->imageName;
-    }
-
     #[ORM\PrePersist]
     public function setCreatedAtValue(): void
     {
         $this->createdAt = new \DateTimeImmutable();
+    }
+
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function generateSlug(): void
+    {
+        if (empty($this->slug) && !empty($this->title)) {
+            $slugger = new AsciiSlugger();
+            $this->slug = strtolower($slugger->slug($this->title));
+        }
     }
 
     public function getId(): ?int
@@ -114,6 +98,12 @@ class Article
     public function getUpdatedAt(): ?\DateTimeImmutable
     {
         return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): self
+    {
+        $this->updatedAt = $updatedAt;
+        return $this;
     }
 
     public function getMetaTitle(): ?string
@@ -160,13 +150,15 @@ class Article
         return $this;
     }
 
-    #[ORM\PrePersist]
-    #[ORM\PreUpdate]
-    public function generateSlug(): void
+    public function isPublished(): ?bool
     {
-        if (empty($this->slug) && !empty($this->title)) {
-            $slugger = new AsciiSlugger();
-            $this->slug = strtolower($slugger->slug($this->title));
-        }
+        return $this->isPublished;
     }
-}
+
+    public function setIsPublished(bool $isPublished): static
+    {
+        $this->isPublished = $isPublished;
+
+        return $this;
+    }
+} 

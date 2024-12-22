@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit {{ page.title }} - GrapeJS Editor{% endblock %}
+
+{% block turbo %}
+    <meta name="turbo-visit-control" content="reload">
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        body { 
+            margin: 0; 
+            height: 100vh;
+            overflow: hidden;
+        }
+        #gjs {
+            height: 100vh;
+            border: none;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div data-controller="grapejs" data-grapejs-page-id-value="{{ page.id }}" data-grapejs-content-value="{{ page.content|escape('html_attr') }}">
+        <div id="gjs">{{ page.content|raw }}</div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %} 

@@ -7,16 +7,37 @@ use Symfony\Component\HttpFoundation\File\File;
 use Imagine\Gd\Imagine;
 use Imagine\Image\Box;
 use Imagine\Image\Point;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 class ImageProcessor
 {
     private $imagine;
     private $settingsRepository;
+    private $slugger;
 
-    public function __construct(SettingsRepository $settingsRepository)
-    {
+    public function __construct(
+        SettingsRepository $settingsRepository,
+        SluggerInterface $slugger
+    ) {
         $this->imagine = new Imagine();
         $this->settingsRepository = $settingsRepository;
+        $this->slugger = $slugger;
+    }
+
+    private function generateAltTag(string $filename): string
+    {
+        $settings = $this->settingsRepository->getSettings();
+        
+        if (!$settings->isAutoImageAlt()) {
+            return '';
+        }
+
+        // Remove extension and convert to readable format
+        $baseFilename = pathinfo($filename, PATHINFO_FILENAME);
+        $humanReadable = str_replace(['-', '_'], ' ', $baseFilename);
+        
+        $format = $settings->getAutoAltFormat() ?? '[filename] image';
+        return str_replace('[filename]', $humanReadable, $format);
     }
 
     public function processImage(File $file): File
@@ -70,5 +91,18 @@ class ImageProcessor
         }
 
         return $file;
+    }
+
+    public function processUploadedImage(UploadedFile $file, string $targetDirectory): array
+    {
+        // ... existing upload logic ...
+
+        $altTag = $this->generateAltTag($originalFilename);
+
+        return [
+            'filename' => $newFilename,
+            'alt' => $altTag,
+            // ... other metadata
+        ];
     }
 } 

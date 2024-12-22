@@ -10,6 +10,12 @@
                 <h1 class="text-2xl font-semibold tracking-tight">Image Gallery</h1>
                 <p class="text-sm text-muted-foreground">Manage your uploaded images.</p>
             </div>
+            <button type="button" 
+                    onclick="document.getElementById('uploadDialog').showModal()"
+                    class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+                <i class="fas fa-upload mr-2"></i>
+                Upload Image
+            </button>
         </div>
 
         {% for message in app.flashes('success') %}
@@ -20,6 +26,61 @@
                 </button>
             </div>
         {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="rounded-lg bg-red-50 p-4 text-sm text-red-500 flex justify-between items-center" role="alert">
+                <span>{{ message }}</span>
+                <button type="button" class="text-red-500 hover:text-red-600" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        {% endfor %}
+
+        <!-- Upload Dialog -->
+        <dialog id="uploadDialog" class="rounded-lg shadow-lg p-0 backdrop:bg-black/50">
+            <div class="w-full max-w-lg">
+                <!-- Dialog Header -->
+                <div class="flex items-center justify-between border-b p-4">
+                    <h3 class="text-lg font-semibold">Upload Image</h3>
+                    <button type="button" 
+                            onclick="this.closest('dialog').close()"
+                            class="rounded-full p-1 hover:bg-gray-100">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <!-- Dialog Content -->
+                <form action="{{ path('admin_images_upload') }}" method="post" enctype="multipart/form-data" class="p-4 space-y-4">
+                    <div class="space-y-2">
+                        <label for="image" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                            Choose Image
+                        </label>
+                        <input type="file" 
+                               id="image" 
+                               name="image" 
+                               accept="image/jpeg,image/png,image/webp"
+                               required
+                               class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                        <p class="text-xs text-muted-foreground">
+                            Supported formats: JPEG, PNG, WebP. Maximum size: 5MB.
+                        </p>
+                    </div>
+
+                    <div class="flex justify-end gap-2 pt-4">
+                        <button type="button" 
+                                onclick="this.closest('dialog').close()"
+                                class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                                class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+                            <i class="fas fa-upload mr-2"></i>
+                            Upload
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </dialog>
 
         <!-- Image Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -77,7 +138,7 @@
                             <i class="fas fa-images fa-3x text-muted-foreground mb-4"></i>
                             <h3 class="text-lg font-semibold">No images found</h3>
                             <p class="text-sm text-muted-foreground mt-2">
-                                Images uploaded through the article editor will appear here.
+                                Upload images using the button above or through the article editor.
                             </p>
                         </div>
                     </div>

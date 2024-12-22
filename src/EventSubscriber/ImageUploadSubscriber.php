@@ -9,13 +9,18 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Vich\UploaderBundle\Event\Event;
 use Vich\UploaderBundle\Event\Events;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Filesystem\Filesystem;
 
 class ImageUploadSubscriber implements EventSubscriberInterface
 {
+    private Filesystem $filesystem;
+
     public function __construct(
         private ImageProcessor $imageProcessor,
         private EntityManagerInterface $entityManager
-    ) {}
+    ) {
+        $this->filesystem = new Filesystem();
+    }
 
     public static function getSubscribedEvents(): array
     {
@@ -44,15 +49,21 @@ class ImageUploadSubscriber implements EventSubscriberInterface
         try {
             // Get the full path of the uploaded file
             $uploadDir = $mapping->getUploadDestination();
-            $uploadedFile = new File($uploadDir . '/' . $filename);
+            $originalFile = new File($uploadDir . '/' . $filename);
             
             // Process the image
-            $processedImage = $this->imageProcessor->processImage($uploadedFile);
+            $processedImage = $this->imageProcessor->processImage($originalFile);
             
-            // If the image was converted to WebP or renamed, update the article
+            // If the image was converted to WebP or renamed
             if ($processedImage->getFilename() !== $filename) {
+                // Update the article with the new filename
                 $object->setImageName($processedImage->getFilename());
                 $this->entityManager->flush();
+
+                // Remove the original file
+                if ($this->filesystem->exists($originalFile->getPathname())) {
+                    $this->filesystem->remove($originalFile->getPathname());
+                }
             }
         } catch (\Exception $e) {
             // Log error or handle it appropriately

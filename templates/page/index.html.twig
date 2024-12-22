@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Pages{% endblock %}
+
+{% block body %}
+    <main class="container mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold mb-8">Pages</h1>
+        
+        <div class="grid gap-6 lg:grid-cols-2">
+            {% for page in pages %}
+                <article class="bg-white shadow rounded-lg overflow-hidden">
+                    <div class="p-6">
+                        <h2 class="text-2xl font-bold mb-2">
+                            <a href="{{ path('app_page_show', {'slug': page.slug}) }}" 
+                               class="text-gray-900 hover:text-blue-600">
+                                {{ page.title }}
+                            </a>
+                        </h2>
+                        
+                        {% if page.createdAt %}
+                            <div class="text-sm text-gray-500 mb-4">
+                                Published on {{ page.createdAt|date('F j, Y') }}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="prose">
+                            {# Optional: Add a summary or excerpt if you have one #}
+                        </div>
+                        
+                        <div class="mt-4">
+                            <a href="{{ path('app_page_show', {'slug': page.slug}) }}" 
+                               class="text-blue-600 hover:text-blue-800 font-medium">
+                                Read more →
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            {% else %}
+                <p class="text-gray-500">No pages found.</p>
+            {% endfor %}
+        </div>
+    </main>
+{% endblock %} 

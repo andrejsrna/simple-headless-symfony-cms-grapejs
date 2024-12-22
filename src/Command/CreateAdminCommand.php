@@ -6,7 +6,6 @@ use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -14,7 +13,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 #[AsCommand(
     name: 'app:create-admin',
-    description: 'Creates a new admin user',
+    description: 'Creates an admin user',
 )]
 class CreateAdminCommand extends Command
 {
@@ -25,19 +24,18 @@ class CreateAdminCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        $this
-            ->addArgument('email', InputArgument::REQUIRED, 'The email of the admin user')
-            ->addArgument('password', InputArgument::REQUIRED, 'The password of the admin user')
-        ;
-    }
-
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $email = $input->getArgument('email');
-        $password = $input->getArgument('password');
+
+        $email = $io->ask('Email', 'admin@example.com');
+        $password = $io->askHidden('Password');
+        $confirmPassword = $io->askHidden('Confirm Password');
+
+        if ($password !== $confirmPassword) {
+            $io->error('Passwords do not match!');
+            return Command::FAILURE;
+        }
 
         $user = new User();
         $user->setEmail($email);
@@ -46,11 +44,15 @@ class CreateAdminCommand extends Command
         $hashedPassword = $this->passwordHasher->hashPassword($user, $password);
         $user->setPassword($hashedPassword);
 
-        $this->entityManager->persist($user);
-        $this->entityManager->flush();
+        try {
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
 
-        $io->success(sprintf('Admin user created: %s', $email));
-
-        return Command::SUCCESS;
+            $io->success(sprintf('Admin user "%s" was created successfully!', $email));
+            return Command::SUCCESS;
+        } catch (\Exception $e) {
+            $io->error('Could not create admin user: ' . $e->getMessage());
+            return Command::FAILURE;
+        }
     }
 } 

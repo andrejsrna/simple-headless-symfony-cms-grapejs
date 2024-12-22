@@ -13,7 +13,7 @@ class SecurityController extends AbstractController
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
         if ($this->getUser()) {
-            return $this->redirectToRoute('admin_articles_index');
+            return $this->redirectToRoute('admin_dashboard');
         }
 
         $error = $authenticationUtils->getLastAuthenticationError();
@@ -25,7 +25,7 @@ class SecurityController extends AbstractController
         ]);
     }
 
-    #[Route('/logout', name: 'app_logout')]
+    #[Route('/logout', name: 'app_logout', methods: ['GET'])]
     public function logout(): void
     {
         // This method can be empty - it will be intercepted by the logout key on your firewall

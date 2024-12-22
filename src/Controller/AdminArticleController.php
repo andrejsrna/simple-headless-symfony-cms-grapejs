@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\String\Slugger\AsciiSlugger;
 
 #[Route('/admin/articles', name: 'admin_articles_')]
 #[IsGranted('ROLE_ADMIN')]
@@ -34,6 +35,11 @@ class AdminArticleController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
+                if (empty($article->getSlug())) {
+                    $slugger = new AsciiSlugger();
+                    $article->setSlug(strtolower($slugger->slug($article->getTitle())));
+                }
+
                 $em->persist($article);
                 $em->flush();
 
@@ -65,6 +71,11 @@ class AdminArticleController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
+                if (empty($article->getSlug())) {
+                    $slugger = new AsciiSlugger();
+                    $article->setSlug(strtolower($slugger->slug($article->getTitle())));
+                }
+
                 $em->flush();
                 $this->addFlash('success', 'Article updated successfully.');
                 return $this->redirectToRoute('admin_articles_index');
