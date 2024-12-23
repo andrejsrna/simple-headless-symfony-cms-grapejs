@@ -40,6 +40,9 @@ class Settings
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private bool $grapejs_enabled = false;
 
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $headless_mode = false;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -142,6 +145,17 @@ class Settings
     public function setGrapejsEnabled(bool $grapejs_enabled): self
     {
         $this->grapejs_enabled = $grapejs_enabled;
+        return $this;
+    }
+
+    public function isHeadlessMode(): bool
+    {
+        return $this->headless_mode;
+    }
+
+    public function setHeadlessMode(bool $headless_mode): self
+    {
+        $this->headless_mode = $headless_mode;
         return $this;
     }
 } 

@@ -23,8 +23,11 @@ class AdminPageController extends AbstractController
     #[Route('/', name: 'admin_pages_index', methods: ['GET'])]
     public function index(PageRepository $pageRepository): Response
     {
+        $settings = $this->settingsRepository->getSettings('general_settings');
+
         return $this->render('admin/page/index.html.twig', [
             'pages' => $pageRepository->findAll(),
+            'headless_mode' => $settings?->isHeadlessMode() ?? false,
         ]);
     }
 

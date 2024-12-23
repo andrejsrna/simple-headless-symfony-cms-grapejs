@@ -61,7 +61,7 @@
                                 </td>
                                 <td class="p-4 align-middle">
                                     <div class="flex items-center justify-end gap-2">
-                                        {% if page.isPublished %}
+                                        {% if page.isPublished and not headless_mode %}
                                             <a href="{{ path('app_page_show', {'slug': page.slug}) }}" 
                                                class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-8 w-8"
                                                target="_blank"

@@ -1,0 +1,91 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block admin_content %}
+    <div class="space-y-6">
+        <!-- Header -->
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-semibold tracking-tight">Dashboard</h1>
+                <p class="text-sm text-muted-foreground">Welcome to your admin dashboard.</p>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {% for key, stat in stats %}
+                {% if (key in ['articles', 'images']) or (is_granted('ROLE_ADMIN') and key in ['pages', 'users']) %}
+                    <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
+                        <div class="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
+                            <h3 class="tracking-tight text-sm font-medium">{{ stat.label }}</h3>
+                        </div>
+                        <div class="p-6 pt-0">
+                            <div class="text-2xl font-bold">{{ stat.count }}</div>
+                            <p class="text-xs text-muted-foreground mt-2">
+                                <a href="{{ path(stat.link) }}" class="hover:underline">
+                                    View all {{ stat.label }}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline ml-1"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <!-- Recent Articles -->
+        <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
+            <div class="flex flex-col space-y-1.5 p-6">
+                <h3 class="font-semibold leading-none tracking-tight">Recent Articles</h3>
+                <p class="text-sm text-muted-foreground">Your most recently created articles.</p>
+            </div>
+            <div class="p-6 pt-0">
+                {% if recent_articles|length > 0 %}
+                    <div class="space-y-8">
+                        {% for article in recent_articles %}
+                            <div class="flex items-center">
+                                {% if article.imageName %}
+                                    <div class="flex-shrink-0 mr-4">
+                                        <img src="{{ asset('uploads/articles/' ~ article.imageName) }}" 
+                                             alt="{{ article.title }}" 
+                                             class="h-16 w-16 rounded-md object-cover">
+                                    </div>
+                                {% endif %}
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900 truncate">
+                                        {{ article.title }}
+                                    </p>
+                                    <p class="text-sm text-muted-foreground">
+                                        Created {{ article.createdAt|date('M d, Y') }}
+                                    </p>
+                                </div>
+                                <div class="flex-shrink-0 ml-4">
+                                    <a href="{{ path('admin_articles_edit', {'id': article.id}) }}" 
+                                       class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 px-3">
+                                        <i class="fas fa-pencil-alt"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-6">
+                        <div class="mx-auto flex max-w-[420px] flex-col items-center justify-center">
+                            <i class="fas fa-newspaper text-4xl text-muted-foreground mb-4"></i>
+                            <h3 class="text-lg font-semibold">No articles found</h3>
+                            <p class="text-sm text-muted-foreground mt-2">
+                                Get started by creating your first article.
+                            </p>
+                            <a href="{{ path('admin_articles_new') }}" 
+                               class="mt-4 inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+                                <i class="fas fa-plus mr-2"></i>
+                                Create Article
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %} 

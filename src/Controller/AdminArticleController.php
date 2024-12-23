@@ -11,18 +11,25 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\AsciiSlugger;
+use App\Repository\SettingsRepository;
 
 #[Route('/admin/articles', name: 'admin_articles_')]
-#[IsGranted('ROLE_ADMIN')]
+#[IsGranted('ROLE_EDITOR')]
 class AdminArticleController extends AbstractController
 {
+    public function __construct(
+        private SettingsRepository $settingsRepository
+    ) {}
+
     #[Route('/', name: 'index')]
     public function index(EntityManagerInterface $em): Response
     {
         $articles = $em->getRepository(Article::class)->findAll();
+        $settings = $this->settingsRepository->getSettings('general_settings');
 
         return $this->render('admin/article/index.html.twig', [
             'articles' => $articles,
+            'headless_mode' => $settings?->isHeadlessMode() ?? false,
         ]);
     }
 

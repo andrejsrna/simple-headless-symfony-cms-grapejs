@@ -17,15 +17,18 @@ use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 #[Route('/admin/images', name: 'admin_images_')]
+#[IsGranted('ROLE_EDITOR')]
 class AdminImageController extends AbstractController
 {
     public function __construct(
         private ImageProcessor $imageProcessor,
         private ValidatorInterface $validator,
         private EntityManagerInterface $entityManager,
-        private ImageRepository $imageRepository
+        private ImageRepository $imageRepository,
+        private AuthorizationCheckerInterface $authorizationChecker
     ) {}
 
     #[Route('/', name: 'index')]

@@ -16,7 +16,7 @@
             <div class="rounded-lg bg-green-50 p-4 text-sm text-green-500 flex justify-between items-center" role="alert">
                 <span>{{ message }}</span>
                 <button type="button" class="text-green-500 hover:text-green-600" onclick="this.parentElement.remove()">
-                    <i class="fas fa-times"></i>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                 </button>
             </div>
         {% endfor %}
@@ -168,10 +168,33 @@
                     <p class="text-sm text-muted-foreground">Configure general website settings.</p>
                 </div>
                 <div class="p-6 pt-0">
-                    <button disabled class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
-                        <i class="fas fa-wrench mr-2"></i>
-                        Configure
-                    </button>
+                    {{ form_start(general_settings_form) }}
+                        <div class="space-y-4">
+                            <!-- Headless Mode Toggle -->
+                            <div class="flex items-center space-x-2">
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    {{ form_widget(general_settings_form.headless_mode, {
+                                        'attr': {
+                                            'class': 'sr-only peer'
+                                        }
+                                    }) }}
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                </label>
+                                <span class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                    Enable Headless CMS
+                                </span>
+                            </div>
+                            <p class="text-sm text-muted-foreground">
+                                When enabled, the frontend will be disabled and all requests will be redirected to the login page.
+                            </p>
+                        </div>
+                        <div class="mt-4">
+                            <button type="submit" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                                Save Changes
+                            </button>
+                        </div>
+                    {{ form_end(general_settings_form) }}
                 </div>
             </div>
 
@@ -179,14 +202,14 @@
             <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
                 <div class="flex flex-col space-y-1.5 p-6">
                     <div class="flex items-center gap-2">
-                        <i class="fas fa-envelope text-muted-foreground"></i>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
                         <h3 class="font-semibold leading-none tracking-tight">Email Settings</h3>
                     </div>
                     <p class="text-sm text-muted-foreground">Configure email server settings.</p>
                 </div>
                 <div class="p-6 pt-0">
                     <button disabled class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
-                        <i class="fas fa-envelope-open mr-2"></i>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
                         Configure
                     </button>
                 </div>
@@ -196,16 +219,23 @@
             <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
                 <div class="flex flex-col space-y-1.5 p-6">
                     <div class="flex items-center gap-2">
-                        <i class="fas fa-users text-muted-foreground"></i>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                         <h3 class="font-semibold leading-none tracking-tight">User Settings</h3>
                     </div>
                     <p class="text-sm text-muted-foreground">Manage user roles and permissions.</p>
                 </div>
                 <div class="p-6 pt-0">
-                    <button disabled class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
-                        <i class="fas fa-user-cog mr-2"></i>
-                        Configure
-                    </button>
+                    <div class="space-y-4">
+                        <div class="text-sm text-muted-foreground">
+                            <p>Current users: <span class="font-medium">{{ users|length }}</span></p>
+                            <p class="mt-1">Administrators: <span class="font-medium">{{ users|filter(u => 'ROLE_ADMIN' in u.roles)|length }}</span></p>
+                        </div>
+                        <a href="{{ path('admin_users_index') }}" 
+                           class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                            Manage Users
+                        </a>
+                    </div>
                 </div>
             </div>
 

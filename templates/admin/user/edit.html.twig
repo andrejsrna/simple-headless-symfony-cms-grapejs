@@ -1,0 +1,87 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Edit User{% endblock %}
+
+{% block admin_content %}
+    <div class="space-y-6">
+        <!-- Header -->
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-semibold tracking-tight">Edit User</h1>
+                <p class="text-sm text-muted-foreground">Modify user account details.</p>
+            </div>
+        </div>
+
+        <!-- Form Card -->
+        <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
+            <div class="p-6">
+                <form method="post" class="space-y-4">
+                    <!-- Email -->
+                    <div class="space-y-2">
+                        <label for="email" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                            Email
+                        </label>
+                        <input type="email" 
+                               id="email" 
+                               name="email" 
+                               value="{{ user.email }}"
+                               required
+                               class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                    </div>
+
+                    <!-- Password -->
+                    <div class="space-y-2">
+                        <label for="password" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                            Password
+                        </label>
+                        <input type="password" 
+                               id="password" 
+                               name="password" 
+                               placeholder="Leave empty to keep current password"
+                               class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                        <p class="text-sm text-muted-foreground">
+                            Leave empty to keep the current password
+                        </p>
+                    </div>
+
+                    <!-- Roles -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                            Roles
+                        </label>
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" 
+                                       name="roles[]" 
+                                       value="ROLE_ADMIN"
+                                       {% if 'ROLE_ADMIN' in user.roles %}checked{% endif %}
+                                       class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary">
+                                <span class="text-sm">Administrator</span>
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" 
+                                       name="roles[]" 
+                                       value="ROLE_EDITOR"
+                                       {% if 'ROLE_EDITOR' in user.roles %}checked{% endif %}
+                                       class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary">
+                                <span class="text-sm">Editor</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex items-center justify-end space-x-4 pt-4">
+                        <a href="{{ path('admin_users_index') }}" 
+                           class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
+                            Cancel
+                        </a>
+                        <button type="submit"
+                                class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %} 

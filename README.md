@@ -1,57 +1,84 @@
-# Symfony CMS Blog
+# Simple Headless Symfony CMS with GrapeJS
 
-A lightweight content management system built with Symfony 6, featuring a modern admin interface and responsive design.
+A modern, lightweight CMS built with Symfony that can operate in both traditional and headless modes. Features a powerful admin interface and GrapeJS for visual content editing.
 
 ## Features
 
 ### Content Management
-- Article creation and editing with rich text editor (Suneditor)
-- Image upload with drag-and-drop support
-- Article preview before publishing
-- Responsive image handling
-- Article listing with pagination
+- **Articles Management**
+  - Create, edit, and delete articles
+  - Rich text editing with GrapeJS
+  - Article scheduling (publish/unpublish dates)
+  - Article categories and tags
+  - Featured images with automatic WebP conversion
+  - SEO metadata management
 
-### Authentication & Security
-- Secure admin area
-- User authentication system
-- Role-based access control
-- CSRF protection
-- Secure password hashing
+- **Pages Management**
+  - Static page creation and management
+  - Visual page builder with GrapeJS
+  - Custom page templates
+  - SEO-friendly URLs
 
-### User Interface
-- Modern, responsive design
-- Bootstrap 5 for admin interface
-- Tailwind CSS for public pages
-- Mobile-friendly layout
-- Interactive image upload with preview
-- Rich text editor with full formatting capabilities
+- **Media Management**
+  - Image upload and management
+  - Automatic WebP conversion
+  - Image optimization
+  - Alt text management
+  - Bulk upload support
 
-## API Endpoints
+### Admin Interface
+- **Modern Dashboard**
+  - Overview of content statistics
+  - Recent activity tracking
+  - Quick access to common actions
+  - Responsive design
 
-### Public Routes
-- `GET /` - Homepage with latest articles
-- `GET /articles/{id}` - View single article
+- **User Management**
+  - Role-based access control (Admin/Editor roles)
+  - User creation and management
+  - Secure password management
+  - User activity logging
 
-### Admin Routes (requires authentication)
-- `GET /admin/articles` - List all articles
-- `GET /admin/articles/new` - Create new article form
-- `POST /admin/articles/new` - Submit new article
-- `GET /admin/articles/{id}` - View article in admin
-- `GET /admin/articles/{id}/edit` - Edit article form
-- `POST /admin/articles/{id}/edit` - Update article
-- `POST /admin/articles/{id}/delete` - Delete article
+### System Features
+- **Headless Mode**
+  - Toggle between traditional and headless CMS
+  - API endpoints for content delivery
+  - Configurable API access
+  - CORS configuration
 
-### Authentication Routes
-- `GET /login` - Login page
-- `POST /login` - Login submission
-- `GET /logout` - Logout action
+- **Security**
+  - Role-based access control
+  - CSRF protection
+  - Secure password hashing
+  - Protected admin routes
+
+- **Performance**
+  - Image optimization
+  - WebP conversion
+  - Caching support
+  - Optimized database queries
+
+### Technical Features
+- Built with Symfony 6.x
+- PHP 8.1+ support
+- Doctrine ORM
+- Twig templating
+- GrapeJS integration
+- RESTful API
+- Modern UI with Tailwind CSS
+
+## Requirements
+- PHP 8.1 or higher
+- Composer
+- MySQL/MariaDB
+- Node.js and npm (for asset management)
+- GD or Imagick PHP extension
 
 ## Installation
 
 1. Clone the repository:
 ```bash
-git clone [repository-url]
-cd local-php-blog
+git clone https://github.com/yourusername/simple-headless-symfony-cms-grapejs.git
 ```
 
 2. Install PHP dependencies:
@@ -59,83 +86,45 @@ cd local-php-blog
 composer install
 ```
 
-3. Install JavaScript dependencies:
-```bash
-npm install
+3. Configure your database in `.env`:
+```
+DATABASE_URL="mysql://db_user:db_password@127.0.0.1:3306/db_name"
 ```
 
-4. Configure your database in `.env`:
-```
-DATABASE_URL="postgresql://app:!ChangeMe!@127.0.0.1:5432/app?serverVersion=15&charset=utf8"
-```
-
-5. Create the database and run migrations:
+4. Create database and run migrations:
 ```bash
 php bin/console doctrine:database:create
 php bin/console doctrine:migrations:migrate
 ```
 
-6. Create an admin user:
+5. Create an admin user:
 ```bash
-php bin/console app:create-admin admin@example.com yourpassword
+php bin/console app:create-admin
 ```
 
-7. Build assets:
+6. Start the Symfony development server:
 ```bash
-npm run build
+symfony server:start
 ```
 
-8. Start the development server:
-```bash
-symfony serve
-```
+## Usage
 
-## Requirements
+1. Access the admin panel at `/admin`
+2. Log in with your admin credentials
+3. Start managing your content through the intuitive admin interface
 
-- PHP 8.1 or higher
-- Composer
-- Node.js & NPM
-- PostgreSQL
-- Symfony CLI (for development)
+## API Documentation
 
-## Directory Structure
+When in headless mode, the CMS provides RESTful API endpoints:
 
-- `src/Controller/` - Application controllers
-- `src/Entity/` - Doctrine entities
-- `src/Form/` - Form types
-- `templates/` - Twig templates
-- `assets/` - JavaScript and CSS files
-- `public/` - Public files and compiled assets
-- `config/` - Application configuration
-
-## Development
-
-To start developing:
-
-1. Start the Symfony development server:
-```bash
-symfony serve -d
-```
-
-2. Watch for asset changes:
-```bash
-npm run watch
-```
-
-## Testing
-
-Run the test suite:
-```bash
-php bin/phpunit
-```
+- `GET /api/articles` - List all articles
+- `GET /api/articles/{id}` - Get specific article
+- `GET /api/pages` - List all pages
+- `GET /api/pages/{id}` - Get specific page
 
 ## Contributing
 
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 

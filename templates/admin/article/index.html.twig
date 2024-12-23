@@ -11,7 +11,7 @@
                 <p class="text-sm text-muted-foreground">Manage your blog articles here.</p>
             </div>
             <a href="{{ path('admin_articles_new') }}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
-                <i class="fas fa-plus mr-2"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 Create New Article
             </a>
         </div>
@@ -44,9 +44,9 @@
                                 <td class="p-4 align-middle">{{ article.updatedAt ? article.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
                                 <td class="p-4 align-middle">
                                     <div class="flex items-center gap-2">
-                                        {% if article.slug is not empty %}
+                                        {% if article.slug is not empty and not headless_mode %}
                                             <a href="{{ path('app_article_show', {'slug': article.slug}) }}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3" target="_blank">
-                                                <i class="fas fa-eye"></i>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
                                             </a>
                                         {% endif %}
                                         <a href="{{ path('admin_articles_edit', {'id': article.id}) }}" 
