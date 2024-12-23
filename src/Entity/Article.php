@@ -33,6 +33,9 @@ class Article
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $imageName = null;
 
+    #[ORM\Column(length: 10, nullable: true)]
+    private ?string $storageType = 'local';
+
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
@@ -73,6 +76,29 @@ class Article
         return $this->imageName;
     }
 
+    public function getStorageType(): ?string
+    {
+        return $this->storageType;
+    }
+
+    public function setStorageType(?string $storageType): void
+    {
+        $this->storageType = $storageType;
+    }
+
+    public function getImageUrl(): ?string
+    {
+        if (!$this->imageName) {
+            return null;
+        }
+
+        if ($this->storageType === 's3') {
+            return $this->imageName; // For S3, imageName contains the full URL
+        }
+
+        return '/uploads/articles/' . $this->imageName;
+    }
+
     #[ORM\PrePersist]
     public function setCreatedAtValue(): void
     {
@@ -89,7 +115,7 @@ class Article
         return $this->title;
     }
 
-    public function setTitle(string $title): self
+    public function setTitle(string $title): static
     {
         $this->title = $title;
         return $this;
@@ -100,7 +126,7 @@ class Article
         return $this->content;
     }
 
-    public function setContent(?string $content): self
+    public function setContent(string $content): static
     {
         $this->content = $content;
         return $this;
@@ -111,9 +137,21 @@ class Article
         return $this->createdAt;
     }
 
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+        return $this;
+    }
+
     public function getUpdatedAt(): ?\DateTimeImmutable
     {
         return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
+        return $this;
     }
 
     public function getMetaTitle(): ?string
@@ -121,7 +159,7 @@ class Article
         return $this->metaTitle;
     }
 
-    public function setMetaTitle(?string $metaTitle): self
+    public function setMetaTitle(?string $metaTitle): static
     {
         $this->metaTitle = $metaTitle;
         return $this;
@@ -132,7 +170,7 @@ class Article
         return $this->metaDescription;
     }
 
-    public function setMetaDescription(?string $metaDescription): self
+    public function setMetaDescription(?string $metaDescription): static
     {
         $this->metaDescription = $metaDescription;
         return $this;
@@ -143,7 +181,7 @@ class Article
         return $this->metaKeywords;
     }
 
-    public function setMetaKeywords(?string $metaKeywords): self
+    public function setMetaKeywords(?string $metaKeywords): static
     {
         $this->metaKeywords = $metaKeywords;
         return $this;
@@ -154,19 +192,13 @@ class Article
         return $this->slug;
     }
 
-    public function setSlug(?string $slug): self
+    public function setSlug(?string $slug): static
     {
+        if (!$slug && $this->title) {
+            $slugger = new AsciiSlugger();
+            $slug = strtolower($slugger->slug($this->title));
+        }
         $this->slug = $slug;
         return $this;
-    }
-
-    #[ORM\PrePersist]
-    #[ORM\PreUpdate]
-    public function generateSlug(): void
-    {
-        if (empty($this->slug) && !empty($this->title)) {
-            $slugger = new AsciiSlugger();
-            $this->slug = strtolower($slugger->slug($this->title));
-        }
     }
 }

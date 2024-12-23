@@ -22,3 +22,11 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    
+    # Make the S3StorageNamer service public
+    App\Service\S3StorageNamer:
+        public: true
+        arguments:
+            $settingsRepository: '@App\Repository\SettingsRepository'
+            $slugger: '@Symfony\Component\String\Slugger\SluggerInterface'
+            $s3StorageService: '@App\Service\S3StorageService'

@@ -40,6 +40,27 @@ class Settings
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private bool $grapejs_enabled = false;
 
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $storage_type = 'local';
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $s3_endpoint = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $s3_public_url = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $s3_region = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $s3_bucket = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $s3_access_key = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $s3_secret_key = null;
+
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private bool $headless_mode = false;
 
@@ -156,6 +177,83 @@ class Settings
     public function setHeadlessMode(bool $headless_mode): self
     {
         $this->headless_mode = $headless_mode;
+        return $this;
+    }
+
+    public function getStorageType(): ?string
+    {
+        return $this->storage_type;
+    }
+
+    public function setStorageType(?string $storage_type): self
+    {
+        $this->storage_type = $storage_type;
+        return $this;
+    }
+
+    public function getS3Endpoint(): ?string
+    {
+        return $this->s3_endpoint;
+    }
+
+    public function setS3Endpoint(?string $s3_endpoint): self
+    {
+        $this->s3_endpoint = $s3_endpoint;
+        return $this;
+    }
+
+    public function getS3PublicUrl(): ?string
+    {
+        return $this->s3_public_url;
+    }
+
+    public function setS3PublicUrl(?string $s3_public_url): self
+    {
+        $this->s3_public_url = $s3_public_url;
+        return $this;
+    }
+
+    public function getS3Region(): ?string
+    {
+        return $this->s3_region;
+    }
+
+    public function setS3Region(?string $s3_region): self
+    {
+        $this->s3_region = $s3_region;
+        return $this;
+    }
+
+    public function getS3Bucket(): ?string
+    {
+        return $this->s3_bucket;
+    }
+
+    public function setS3Bucket(?string $s3_bucket): self
+    {
+        $this->s3_bucket = $s3_bucket;
+        return $this;
+    }
+
+    public function getS3AccessKey(): ?string
+    {
+        return $this->s3_access_key;
+    }
+
+    public function setS3AccessKey(?string $s3_access_key): self
+    {
+        $this->s3_access_key = $s3_access_key;
+        return $this;
+    }
+
+    public function getS3SecretKey(): ?string
+    {
+        return $this->s3_secret_key;
+    }
+
+    public function setS3SecretKey(?string $s3_secret_key): self
+    {
+        $this->s3_secret_key = $s3_secret_key;
         return $this;
     }
 } 

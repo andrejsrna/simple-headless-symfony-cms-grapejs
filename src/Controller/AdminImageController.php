@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Image;
 use App\Repository\ImageRepository;
+use App\Repository\SettingsRepository;
+use App\Service\S3StorageService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,7 +19,7 @@ use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/admin/images', name: 'admin_images_')]
 #[IsGranted('ROLE_EDITOR')]
@@ -28,42 +30,68 @@ class AdminImageController extends AbstractController
         private ValidatorInterface $validator,
         private EntityManagerInterface $entityManager,
         private ImageRepository $imageRepository,
-        private AuthorizationCheckerInterface $authorizationChecker
+        private SettingsRepository $settingsRepository,
+        private S3StorageService $s3StorageService
     ) {}
 
     #[Route('/', name: 'index')]
     public function index(): Response
     {
-        $finder = new Finder();
+        $settings = $this->settingsRepository->getSettings('image_settings');
         $images = [];
         
-        // Find all files in the uploads/articles directory
-        if (is_dir($this->getUploadsDir())) {
-            $finder->files()->in($this->getUploadsDir())->name('/\.(jpg|jpeg|png|gif|webp)$/i');
-            
-            foreach ($finder as $file) {
-                $filename = $file->getFilename();
-                $imageEntity = $this->imageRepository->findOneByFilename($filename);
-                
+        if ($settings && $settings->getStorageType() === 's3') {
+            // List images from S3
+            $result = $this->s3StorageService->listFiles();
+            foreach ($result['files'] as $file) {
+                $imageEntity = $this->imageRepository->findOneByFilename($file['key']);
                 $images[] = [
-                    'name' => $filename,
-                    'path' => '/uploads/articles/' . $filename,
-                    'size' => $this->formatFileSize($file->getSize()),
-                    'modified' => new \DateTime('@' . $file->getMTime()),
-                    'altText' => $imageEntity ? $imageEntity->getAltText() : null
+                    'name' => $file['key'],
+                    'path' => $file['url'],
+                    'size' => $this->formatFileSize($file['size']),
+                    'modified' => $file['modified'],
+                    'altText' => $imageEntity ? $imageEntity->getAltText() : null,
+                    'storage_type' => 's3'
                 ];
+            }
+        } else {
+            // List local images
+            $finder = new Finder();
+            if (is_dir($this->getUploadsDir())) {
+                $finder->files()->in($this->getUploadsDir())->name('/\.(jpg|jpeg|png|gif|webp)$/i');
+                
+                foreach ($finder as $file) {
+                    $filename = $file->getFilename();
+                    $imageEntity = $this->imageRepository->findOneByFilename($filename);
+                    
+                    $images[] = [
+                        'name' => $filename,
+                        'path' => '/uploads/articles/' . $filename,
+                        'size' => $this->formatFileSize($file->getSize()),
+                        'modified' => new \DateTime('@' . $file->getMTime()),
+                        'altText' => $imageEntity ? $imageEntity->getAltText() : null,
+                        'storage_type' => 'local'
+                    ];
+                }
             }
         }
 
         return $this->render('admin/image/index.html.twig', [
-            'images' => $images
+            'images' => $images,
+            'storage_type' => $settings?->getStorageType() ?? 'local'
         ]);
     }
 
     #[Route('/update-alt/{filename}', name: 'update_alt', methods: ['POST'])]
     public function updateAlt(string $filename, Request $request): JsonResponse
     {
+        $settings = $this->settingsRepository->getSettings('image_settings');
         $altText = $request->request->get('altText');
+        
+        if ($settings && $settings->getStorageType() === 's3') {
+            // Update S3 metadata
+            $this->s3StorageService->updateMetadata($filename, ['alt' => $altText]);
+        }
         
         $image = $this->imageRepository->findOneByFilename($filename);
         if (!$image) {
@@ -113,37 +141,52 @@ class AdminImageController extends AbstractController
         }
 
         try {
-            // Create uploads directory if it doesn't exist
-            $filesystem = new Filesystem();
-            $uploadDir = $this->getUploadsDir();
-            if (!$filesystem->exists($uploadDir)) {
-                $filesystem->mkdir($uploadDir);
-            }
-
-            // Generate a unique filename
-            $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
-            $safeFilename = transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $originalFilename);
-            $newFilename = $safeFilename . '-' . uniqid() . '.' . $uploadedFile->guessExtension();
-
-            // Move the file to the uploads directory
-            $uploadedFile->move($uploadDir, $newFilename);
-
-            // Process the image (resize and convert to WebP if enabled)
-            $file = new File($uploadDir . '/' . $newFilename);
-            $processedImage = $this->imageProcessor->processImage($file);
+            $settings = $this->settingsRepository->getSettings('image_settings');
             
-            // Create Image entity
-            $image = new Image();
-            $image->setFilename($processedImage->getFilename());
-            $this->entityManager->persist($image);
-            $this->entityManager->flush();
+            if ($settings && $settings->getStorageType() === 's3') {
+                // Upload directly to S3
+                $result = $this->s3StorageService->uploadFile($uploadedFile);
+                
+                // Create Image entity
+                $image = new Image();
+                $image->setFilename($result['filename']);
+                $this->entityManager->persist($image);
+                $this->entityManager->flush();
+                
+                $this->addFlash('success', 'Image uploaded successfully to S3.');
+            } else {
+                // Create uploads directory if it doesn't exist
+                $filesystem = new Filesystem();
+                $uploadDir = $this->getUploadsDir();
+                if (!$filesystem->exists($uploadDir)) {
+                    $filesystem->mkdir($uploadDir);
+                }
 
-            // Remove the original file if it was converted to WebP
-            if ($processedImage->getFilename() !== $newFilename) {
-                $filesystem->remove($file->getPathname());
+                // Generate a unique filename
+                $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $originalFilename);
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $uploadedFile->guessExtension();
+
+                // Move the file to the uploads directory
+                $uploadedFile->move($uploadDir, $newFilename);
+
+                // Process the image (resize and convert to WebP if enabled)
+                $file = new File($uploadDir . '/' . $newFilename);
+                $processedImage = $this->imageProcessor->processImage($file);
+                
+                // Create Image entity
+                $image = new Image();
+                $image->setFilename($processedImage->getFilename());
+                $this->entityManager->persist($image);
+                $this->entityManager->flush();
+
+                // Remove the original file if it was converted to WebP
+                if ($processedImage->getFilename() !== $newFilename) {
+                    $filesystem->remove($file->getPathname());
+                }
+
+                $this->addFlash('success', 'Image uploaded successfully.');
             }
-
-            $this->addFlash('success', 'Image uploaded successfully.');
         } catch (\Exception $e) {
             $this->addFlash('error', 'Error uploading image: ' . $e->getMessage());
         }
@@ -151,17 +194,33 @@ class AdminImageController extends AbstractController
         return $this->redirectToRoute('admin_images_index');
     }
 
-    #[Route('/delete/{filename}', name: 'delete', methods: ['POST'])]
+    #[Route('/delete/{filename}', name: 'delete', methods: ['POST'], requirements: ['filename' => '.+'])]
     public function delete(string $filename, Request $request): Response
     {
         if ($this->isCsrfTokenValid('delete'.$filename, $request->request->get('_token'))) {
-            $filesystem = new Filesystem();
-            $filePath = $this->getUploadsDir() . '/' . $filename;
+            $settings = $this->settingsRepository->getSettings('image_settings');
             
-            if ($filesystem->exists($filePath)) {
-                $filesystem->remove($filePath);
-                $this->addFlash('success', 'Image deleted successfully.');
+            if ($settings && $settings->getStorageType() === 's3') {
+                // Delete from S3
+                $this->s3StorageService->deleteFile($filename);
+            } else {
+                // Delete local file
+                $filesystem = new Filesystem();
+                $filePath = $this->getUploadsDir() . '/' . $filename;
+                
+                if ($filesystem->exists($filePath)) {
+                    $filesystem->remove($filePath);
+                }
             }
+            
+            // Delete the Image entity if it exists
+            $image = $this->imageRepository->findOneByFilename($filename);
+            if ($image) {
+                $this->entityManager->remove($image);
+                $this->entityManager->flush();
+            }
+            
+            $this->addFlash('success', 'Image deleted successfully.');
         }
 
         return $this->redirectToRoute('admin_images_index');

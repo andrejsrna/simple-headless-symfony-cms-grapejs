@@ -6,6 +6,7 @@ use App\Repository\ArticleRepository;
 use App\Repository\PageRepository;
 use App\Repository\UserRepository;
 use App\Repository\ImageRepository;
+use App\Service\S3StorageService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -20,7 +21,8 @@ class AdminDashboardController extends AbstractController
         ArticleRepository $articleRepository,
         PageRepository $pageRepository,
         UserRepository $userRepository,
-        ImageRepository $imageRepository
+        ImageRepository $imageRepository,
+        S3StorageService $s3StorageService
     ): Response {
         // Get counts for dashboard stats
         $stats = [
@@ -55,7 +57,8 @@ class AdminDashboardController extends AbstractController
 
         return $this->render('admin/dashboard/index.html.twig', [
             'stats' => $stats,
-            'recent_articles' => $recentArticles
+            'recent_articles' => $recentArticles,
+            's3_storage_service' => $s3StorageService
         ]);
     }
 } 

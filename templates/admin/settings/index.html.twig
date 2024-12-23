@@ -35,6 +35,84 @@
                     }
                 }) }}
                     <div class="space-y-4">
+                        <!-- Storage Type -->
+                        <div class="space-y-2">
+                            {{ form_label(image_settings_form.storage_type, 'Storage Type', {
+                                'label_attr': {'class': 'text-sm font-medium leading-none'}
+                            }) }}
+                            {{ form_widget(image_settings_form.storage_type, {
+                                'attr': {
+                                    'class': 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+                                    'data-action': 'change->toggle#toggle'
+                                }
+                            }) }}
+                        </div>
+
+                        <!-- S3 Settings -->
+                        <div data-controller="toggle" class="space-y-4 rounded-lg border bg-muted/50 p-4 {% if image_settings_form.storage_type.vars.value != 's3' %}hidden{% endif %}" data-toggle-target="content">
+                            <div class="space-y-2">
+                                {{ form_label(image_settings_form.s3_endpoint, 'S3 Endpoint', {
+                                    'label_attr': {'class': 'text-sm font-medium leading-none'}
+                                }) }}
+                                {{ form_widget(image_settings_form.s3_endpoint, {
+                                    'attr': {
+                                        'class': 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+                                        'placeholder': 'https://s3.amazonaws.com'
+                                    }
+                                }) }}
+                                <p class="text-xs text-muted-foreground">{{ form_help(image_settings_form.s3_endpoint) }}</p>
+                            </div>
+
+                            <div class="space-y-2">
+                                {{ form_label(image_settings_form.s3_region, 'S3 Region', {
+                                    'label_attr': {'class': 'text-sm font-medium leading-none'}
+                                }) }}
+                                {{ form_widget(image_settings_form.s3_region, {
+                                    'attr': {
+                                        'class': 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+                                        'placeholder': 'us-east-1'
+                                    }
+                                }) }}
+                                <p class="text-xs text-muted-foreground">{{ form_help(image_settings_form.s3_region) }}</p>
+                            </div>
+
+                            <div class="space-y-2">
+                                {{ form_label(image_settings_form.s3_bucket, 'S3 Bucket', {
+                                    'label_attr': {'class': 'text-sm font-medium leading-none'}
+                                }) }}
+                                {{ form_widget(image_settings_form.s3_bucket, {
+                                    'attr': {
+                                        'class': 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+                                    }
+                                }) }}
+                                <p class="text-xs text-muted-foreground">{{ form_help(image_settings_form.s3_bucket) }}</p>
+                            </div>
+
+                            <div class="space-y-2">
+                                {{ form_label(image_settings_form.s3_access_key, 'S3 Access Key', {
+                                    'label_attr': {'class': 'text-sm font-medium leading-none'}
+                                }) }}
+                                {{ form_widget(image_settings_form.s3_access_key, {
+                                    'attr': {
+                                        'class': 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+                                    }
+                                }) }}
+                                <p class="text-xs text-muted-foreground">{{ form_help(image_settings_form.s3_access_key) }}</p>
+                            </div>
+
+                            <div class="space-y-2">
+                                {{ form_label(image_settings_form.s3_secret_key, 'S3 Secret Key', {
+                                    'label_attr': {'class': 'text-sm font-medium leading-none'}
+                                }) }}
+                                {{ form_widget(image_settings_form.s3_secret_key, {
+                                    'attr': {
+                                        'class': 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+                                    }
+                                }) }}
+                                <p class="text-xs text-muted-foreground">{{ form_help(image_settings_form.s3_secret_key) }}</p>
+                            </div>
+                        </div>
+
                         <!-- Resize Settings -->
                         <div data-controller="toggle">
                             <!-- Enable Image Resizing -->

@@ -47,7 +47,7 @@
                             <div class="flex items-center">
                                 {% if article.imageName %}
                                     <div class="flex-shrink-0 mr-4">
-                                        <img src="{{ asset('uploads/articles/' ~ article.imageName) }}" 
+                                        <img src="{{ article.imageUrl }}" 
                                              alt="{{ article.title }}" 
                                              class="h-16 w-16 rounded-md object-cover">
                                     </div>

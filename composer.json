@@ -7,6 +7,7 @@
         "php": ">=8.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "aws/aws-sdk-php": "^3.336",
         "doctrine/dbal": "^3",
         "doctrine/doctrine-bundle": "^2.13",
         "doctrine/doctrine-migrations-bundle": "^3.3",
@@ -105,8 +106,7 @@
         "symfony/debug-bundle": "7.2.*",
         "symfony/maker-bundle": "^1.0",
         "symfony/phpunit-bridge": "^7.2",
-        "symfony/stopwatch": "7.2.*",
-        "symfony/web-profiler-bundle": "7.2.*"
+        "symfony/stopwatch": "7.2.*"
     },
     "repositories": {
         "xearts/symfony-ux-ckeditor5": {

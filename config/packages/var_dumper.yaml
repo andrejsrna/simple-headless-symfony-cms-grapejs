@@ -1,0 +1,10 @@
+parameters:
+    var_dumper.dump_destination: 'null://null'
+
+services:
+    var_dumper.cloner:
+        class: Symfony\Component\VarDumper\Cloner\VarCloner
+        public: false
+        calls:
+            - [setMaxItems, [0]]
+            - [setMaxString, [0]] 

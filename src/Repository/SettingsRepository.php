@@ -23,9 +23,7 @@ class SettingsRepository extends ServiceEntityRepository
 
     public function getSettings(string $name): ?Settings
     {
-        $settings = $this->findOneBy(['name' => $name]);
-        dump($settings);
-        return $settings;
+        return $this->findOneBy(['name' => $name]);
     }
 
     public function saveSettings(Settings $settings): void

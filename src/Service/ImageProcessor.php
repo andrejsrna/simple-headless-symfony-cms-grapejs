@@ -4,9 +4,10 @@ namespace App\Service;
 
 use App\Repository\SettingsRepository;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Imagine\Gd\Imagine;
 use Imagine\Image\Box;
-use Imagine\Image\Point;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 class ImageProcessor
@@ -14,19 +15,24 @@ class ImageProcessor
     private $imagine;
     private $settingsRepository;
     private $slugger;
+    private $s3StorageService;
+    private $filesystem;
 
     public function __construct(
         SettingsRepository $settingsRepository,
-        SluggerInterface $slugger
+        SluggerInterface $slugger,
+        S3StorageService $s3StorageService
     ) {
         $this->imagine = new Imagine();
         $this->settingsRepository = $settingsRepository;
         $this->slugger = $slugger;
+        $this->s3StorageService = $s3StorageService;
+        $this->filesystem = new Filesystem();
     }
 
     private function generateAltTag(string $filename): string
     {
-        $settings = $this->settingsRepository->getSettings();
+        $settings = $this->settingsRepository->getSettings('image_settings');
         
         if (!$settings->isAutoImageAlt()) {
             return '';
@@ -42,24 +48,18 @@ class ImageProcessor
 
     public function processImage(File $file): File
     {
-        $settings = $this->settingsRepository->getSettings('image_settings') ?? [
-            'resize_enabled' => true,
-            'max_width' => 1920,
-            'max_height' => 1080,
-            'jpeg_quality' => 85,
-            'webp_enabled' => true,
-        ];
+        $settings = $this->settingsRepository->getSettings('image_settings');
 
         // Get the original image
         $image = $this->imagine->open($file->getPathname());
         $originalSize = $image->getSize();
 
         // Resize if enabled and needed
-        if ($settings['resize_enabled']) {
+        if ($settings->isResizeEnabled()) {
             $width = $originalSize->getWidth();
             $height = $originalSize->getHeight();
-            $maxWidth = $settings['max_width'];
-            $maxHeight = $settings['max_height'];
+            $maxWidth = $settings->getMaxWidth();
+            $maxHeight = $settings->getMaxHeight();
 
             if ($width > $maxWidth || $height > $maxHeight) {
                 $ratio = min($maxWidth / $width, $maxHeight / $height);
@@ -70,39 +70,89 @@ class ImageProcessor
             }
         }
 
+        // Create a temporary file for the processed image
+        $tempDir = sys_get_temp_dir();
+        $tempFilename = uniqid('processed_') . '.' . $file->guessExtension();
+        $tempPath = $tempDir . '/' . $tempFilename;
+
         // Convert to WebP if enabled
-        if ($settings['webp_enabled']) {
-            $webpPath = $file->getPath() . '/' . pathinfo($file->getFilename(), PATHINFO_FILENAME) . '.webp';
-            $image->save($webpPath, [
-                'webp_quality' => $settings['jpeg_quality']
+        if ($settings->isWebpEnabled()) {
+            $tempWebpPath = $tempDir . '/' . pathinfo($tempFilename, PATHINFO_FILENAME) . '.webp';
+            $image->save($tempWebpPath, [
+                'webp_quality' => $settings->getJpegQuality()
             ]);
-
-            // Return the WebP version
-            return new File($webpPath);
-        }
-
-        // Save with JPEG quality if it's a JPEG
-        if (in_array($file->getMimeType(), ['image/jpeg', 'image/jpg'])) {
-            $image->save($file->getPathname(), [
-                'jpeg_quality' => $settings['jpeg_quality']
-            ]);
+            $processedFile = new File($tempWebpPath);
         } else {
-            $image->save($file->getPathname());
+            // Save with JPEG quality if it's a JPEG
+            if (in_array($file->getMimeType(), ['image/jpeg', 'image/jpg'])) {
+                $image->save($tempPath, [
+                    'jpeg_quality' => $settings->getJpegQuality()
+                ]);
+            } else {
+                $image->save($tempPath);
+            }
+            $processedFile = new File($tempPath);
         }
 
-        return $file;
+        // If S3 storage is enabled, upload to S3
+        if ($settings->getStorageType() === 's3') {
+            try {
+                $result = $this->s3StorageService->uploadFile($processedFile);
+                // Clean up temporary files
+                $this->filesystem->remove($tempPath);
+                if (isset($tempWebpPath)) {
+                    $this->filesystem->remove($tempWebpPath);
+                }
+                // Return a File object that points to the S3 URL
+                return new File($result['path']);
+            } catch (\Exception $e) {
+                throw new \RuntimeException('Failed to upload to S3: ' . $e->getMessage());
+            }
+        }
+
+        // For local storage, move the processed file to the uploads directory
+        $targetDir = $this->getUploadsDir();
+        if (!$this->filesystem->exists($targetDir)) {
+            $this->filesystem->mkdir($targetDir);
+        }
+
+        $newFilename = $this->slugger->slug(pathinfo($processedFile->getFilename(), PATHINFO_FILENAME)) . '-' . uniqid() . '.' . $processedFile->guessExtension();
+        $newPath = $targetDir . '/' . $newFilename;
+        $this->filesystem->rename($processedFile->getPathname(), $newPath, true);
+
+        return new File($newPath);
     }
 
     public function processUploadedImage(UploadedFile $file, string $targetDirectory): array
     {
-        // ... existing upload logic ...
-
-        $altTag = $this->generateAltTag($originalFilename);
-
+        $settings = $this->settingsRepository->getSettings('image_settings');
+        
+        // Process the image
+        $processedFile = $this->processImage($file);
+        
+        // Generate alt tag
+        $altTag = $this->generateAltTag($file->getClientOriginalName());
+        
+        // If using S3, the processImage method already uploaded the file
+        if ($settings->getStorageType() === 's3') {
+            return [
+                'filename' => basename($processedFile->getPathname()),
+                'alt' => $altTag,
+                'url' => $processedFile->getPathname(), // This will be the S3 URL
+                'storage_type' => 's3'
+            ];
+        }
+        
         return [
-            'filename' => $newFilename,
+            'filename' => $processedFile->getFilename(),
             'alt' => $altTag,
-            // ... other metadata
+            'path' => $processedFile->getPathname(),
+            'storage_type' => 'local'
         ];
+    }
+
+    private function getUploadsDir(): string
+    {
+        return dirname(__DIR__, 2) . '/public/uploads/images';
     }
 } 

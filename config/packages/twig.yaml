@@ -1,5 +1,6 @@
 twig:
     file_name_pattern: '*.twig'
+    debug: false
 
 when@test:
     twig:

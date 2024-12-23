@@ -17,9 +17,15 @@
                  data-action="click->image-upload#browse">
                 {# Current or placeholder image #}
                 {% if article is defined and article.imageName %}
-                    <img src="{{ vich_uploader_asset(article, 'imageFile') }}" 
-                         class="mx-auto mb-4 max-h-48 rounded"
-                         data-image-upload-target="preview">
+                    {% if article.storageType == 's3' %}
+                        <img src="{{ s3_storage_service.getPublicUrl(article.imageName) }}" 
+                             class="mx-auto mb-4 max-h-48 rounded"
+                             data-image-upload-target="preview">
+                    {% else %}
+                        <img src="{{ asset('uploads/articles/' ~ article.imageName) }}" 
+                             class="mx-auto mb-4 max-h-48 rounded"
+                             data-image-upload-target="preview">
+                    {% endif %}
                 {% else %}
                     <img src="" class="mx-auto mb-4 max-h-48 rounded hidden" data-image-upload-target="preview">
                 {% endif %}

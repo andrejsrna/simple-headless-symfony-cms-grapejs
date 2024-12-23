@@ -1,17 +1,5 @@
 {% if settings is defined %}
-    <!-- Debug output -->
-    <div class="hidden">
-        Settings exists: {{ dump(settings) }}
-        GrapeJS enabled: {{ dump(settings.isGrapejsEnabled()) }}
-    </div>
-{% else %}
-    <!-- Debug output -->
-    <div class="hidden">
-        Settings not defined
-    </div>
-{% endif %}
-
-{{ form_start(form, {'attr': {'class': 'space-y-6', 'data-controller': 'editor slug'}}) }}
+    {{ form_start(form, {'attr': {'class': 'space-y-6', 'data-controller': 'editor slug'}}) }}
     <div class="space-y-4">
         {{ form_row(form.title, {
             'label_attr': {'class': 'text-sm font-medium leading-none'},

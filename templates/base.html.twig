@@ -5,11 +5,6 @@
         <title>{% block title %}Welcome!{% endblock %}</title>
         <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>">
         
-        {# Move all JavaScript to the head #}
-        {% block javascripts %}
-            {{ encore_entry_script_tags('app') }}
-        {% endblock %}
-        
         {% block stylesheets %}
             {{ encore_entry_link_tags('app') }}
         {% endblock %}
@@ -17,7 +12,14 @@
         {# Add this block for Turbo control #}
         {% block turbo %}{% endblock %}
     </head>
-    <body data-turbo-suppress-warning {% block body_attributes %}{% endblock %}>
-        {% block body %}{% endblock %}
+    <body {% block body_attributes %}{% endblock %}>
+        <div id="main-content">
+            {% block body %}{% endblock %}
+        </div>
+
+        {# Move JavaScript to end of body for better performance and to ensure DOM is loaded #}
+        {% block javascripts %}
+            {{ encore_entry_script_tags('app') }}
+        {% endblock %}
     </body>
 </html>
