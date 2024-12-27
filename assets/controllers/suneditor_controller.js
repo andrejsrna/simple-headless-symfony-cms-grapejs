@@ -4,6 +4,7 @@ import plugins from 'suneditor/src/plugins';
 
 export default class extends Controller {
     static instances = new Set();
+    static targets = ['editor'];
 
     initialize() {
         // Store the instance ID
@@ -45,6 +46,20 @@ export default class extends Controller {
             height: '400px',
             width: '100%',
             defaultStyle: 'font-family: inherit; font-size: 1rem; line-height: 1.5;',
+            imageGalleryUrl: '/admin/images/gallery',
+            imageUploadUrl: '/admin/images/upload',
+            imageUrlInput: false,
+            imageUploadSizeLimit: 5242880, // 5MB
+            imageAccept: '.jpg,.jpeg,.png,.webp',
+            onImageUploadBefore: function (files, info, uploadHandler) {
+                // Show the image gallery modal
+                const modal = document.getElementById('imageGalleryModal');
+                if (modal) {
+                    modal.showModal();
+                    return false; // Prevent default upload
+                }
+                return true;
+            },
             onChange: (contents) => {
                 // Update the hidden textarea
                 this.element.value = contents;
@@ -84,31 +99,43 @@ export default class extends Controller {
         document.addEventListener('turbo:before-cache', this.cleanup);
     }
 
-    cleanup = () => {
-        try {
-            if (this.editor && typeof this.editor.destroy === 'function') {
-                this.editor.destroy();
+    // Method to insert an image from the gallery
+    insertImage(url, alt = '') {
+        if (this.editor) {
+            this.editor.insertImage(url, alt, null, null);
+            // Close the modal
+            const modal = document.getElementById('imageGalleryModal');
+            if (modal) {
+                modal.close();
             }
-        } catch (error) {
-            console.warn('Error destroying Suneditor:', error);
         }
-        
-        this.editor = null;
-        this.element.suneditor = null;
-        this.constructor.instances.delete(this.instanceId);
     }
 
     disconnect() {
-        // Remove form submit handler if it exists
-        const form = this.element.closest('form');
-        if (form && this.submitHandler) {
-            form.removeEventListener('submit', this.submitHandler);
+        // Remove this instance from tracking
+        this.constructor.instances.delete(this.instanceId);
+
+        // Clean up event listeners
+        if (this.submitHandler) {
+            const form = this.element.closest('form');
+            if (form) {
+                form.removeEventListener('submit', this.submitHandler);
+            }
         }
 
-        // Remove Turbo cache handler
         document.removeEventListener('turbo:before-cache', this.cleanup);
 
-        // Cleanup editor
-        this.cleanup();
+        // Destroy editor instance
+        if (this.editor && typeof this.editor.destroy === 'function') {
+            this.editor.destroy();
+            this.editor = null;
+        }
+    }
+
+    cleanup = () => {
+        if (this.editor && typeof this.editor.destroy === 'function') {
+            this.editor.destroy();
+            this.editor = null;
+        }
     }
 } 

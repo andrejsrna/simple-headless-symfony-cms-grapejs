@@ -226,6 +226,57 @@ class AdminImageController extends AbstractController
         return $this->redirectToRoute('admin_images_index');
     }
 
+    #[Route('/list', name: 'list', methods: ['GET'])]
+    public function list(Request $request): JsonResponse
+    {
+        $settings = $this->settingsRepository->getSettings('image_settings');
+        $page = $request->query->getInt('page', 1);
+        $limit = $request->query->getInt('limit', 12);
+        $startAfter = $request->query->get('startAfter');
+
+        try {
+            if ($settings && $settings->getStorageType() === 's3') {
+                // Use S3 storage
+                $result = $this->s3StorageService->listFiles('', $limit, $startAfter);
+                return $this->json([
+                    'files' => $result['files'],
+                    'hasMore' => $result['hasMore'],
+                    'nextStartAfter' => $result['nextStartAfter']
+                ]);
+            } else {
+                // Use local storage
+                $images = $this->imageRepository->findBy(
+                    [],
+                    ['createdAt' => 'DESC'],
+                    $limit,
+                    ($page - 1) * $limit
+                );
+
+                $files = array_map(function($image) {
+                    return [
+                        'url' => $image->getStorageType() === 's3' 
+                            ? $image->getImageName() 
+                            : '/uploads/articles/' . $image->getImageName(),
+                        'key' => $image->getImageName(),
+                        'alt' => $image->getAltText(),
+                        'size' => $image->getSize(),
+                        'modified' => $image->getUpdatedAt() ?? $image->getCreatedAt()
+                    ];
+                }, $images);
+
+                $total = $this->imageRepository->count([]);
+
+                return $this->json([
+                    'files' => $files,
+                    'hasMore' => ($page * $limit) < $total,
+                    'nextPage' => $page + 1
+                ]);
+            }
+        } catch (\Exception $e) {
+            return $this->json(['error' => 'Failed to list images: ' . $e->getMessage()], 500);
+        }
+    }
+
     private function getUploadsDir(): string
     {
         return $this->getParameter('kernel.project_dir') . '/public/uploads/articles';

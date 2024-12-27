@@ -1,0 +1,37 @@
+<!-- Image Gallery Modal -->
+<dialog id="imageGalleryModal" 
+        class="rounded-lg shadow-lg p-0 backdrop:bg-black/50 w-full max-w-4xl"
+        data-controller="image-gallery"
+        data-image-gallery-target="modal">
+    <div class="w-full">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between border-b p-4">
+            <h3 class="text-lg font-semibold">Image Gallery</h3>
+            <button type="button" 
+                    data-action="image-gallery#closeModal"
+                    class="rounded-full p-1 hover:bg-gray-100">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+        </div>
+
+        <!-- Upload Section -->
+        <div class="border-b p-4">
+            <form data-image-gallery-target="uploadForm" class="flex gap-4 items-center">
+                <div class="flex-1">
+                    <input type="file" 
+                           data-image-gallery-target="fileInput"
+                           accept="image/jpeg,image/png,image/webp"
+                           class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                </div>
+            </form>
+        </div>
+
+        <!-- Image Grid -->
+        <div class="p-4 max-h-[60vh] overflow-y-auto">
+            <div data-image-gallery-target="grid" 
+                 class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                <!-- Images will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+</dialog> 
