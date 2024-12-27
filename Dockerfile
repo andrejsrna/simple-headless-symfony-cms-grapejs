@@ -41,7 +41,14 @@ COPY . .
 # Create required directories and set permissions
 RUN mkdir -p /app/var/cache /app/var/log && \
     chown -R www-data:www-data /app && \
-    chmod -R 777 /app/var
+    chmod -R 777 /app/var && \
+    chmod -R 755 /app/public
+
+# Add a verification step
+RUN ls -la /app/public && \
+    ls -la /app/var && \
+    php -v && \
+    php -m
 
 # Generate autoloader and run scripts
 RUN composer dump-autoload --optimize && \
