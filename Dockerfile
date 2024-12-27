@@ -29,7 +29,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /app
 
-# Copy composer files first to leverage Docker cache
+# Copy composer files first
 COPY composer.json composer.lock ./
 
 # Install composer dependencies
@@ -37,6 +37,11 @@ RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
 
 # Copy the rest of the application
 COPY . .
+
+# Create required directories and set permissions
+RUN mkdir -p /app/var/cache /app/var/log && \
+    chown -R www-data:www-data /app && \
+    chmod -R 777 /app/var
 
 # Generate autoloader and run scripts
 RUN composer dump-autoload --optimize && \
@@ -46,13 +51,10 @@ RUN composer dump-autoload --optimize && \
 RUN npm ci && \
     npm run build
 
-# Set proper permissions
-RUN chown -R www-data:www-data /app
-
 # Configure PHP
 COPY docker/php/php.ini /usr/local/etc/php/conf.d/app.ini
 
-# Expose port 9000 for PHP-FPM
+# Expose port 9000
 EXPOSE 9000
 
 # Start PHP-FPM
