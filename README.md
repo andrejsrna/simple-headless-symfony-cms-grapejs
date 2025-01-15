@@ -78,7 +78,7 @@ A modern, lightweight CMS built with Symfony that can operate in both traditiona
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/simple-headless-symfony-cms-grapejs.git
+git clone https://github.com/andrejsrna/simple-headless-symfony-cms-grapejs.git
 ```
 
 2. Install PHP dependencies:
